@@ -1,0 +1,303 @@
+/* ==========================================================================
+   Esquisita como eu — Design Tokens
+   Extraído do Figma: página "Website" (node 1:3) + componentes usados
+   (página "Components", node 1:2). Apenas variáveis/estilos realmente
+   aplicados no escopo auditado.
+
+   Mobile-first: os valores em :root refletem o mode "Mobile" da collection
+   "Responsive"; um único breakpoint (min-width: 64rem) sobrescreve para o
+   mode "Desktop". O Figma é referência de intenção, não especificação
+   exata — valores soltos ou instâncias divergentes do mode Mobile/do
+   componente base foram normalizados para o token existente mais próximo
+   em vez de reproduzidos literalmente. Decisões registradas em
+   docs/decisoes-tokens.md.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Reset mínimo
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Cores — primitivos
+   (color/black, color/gray/800, color/gray/100)
+   -------------------------------------------------------------------------- */
+:root {
+  --color-black: #1a1a1a;
+  --color-gray-800: #494949;
+  --color-gray-100: #dbdbdb;
+}
+
+/* --------------------------------------------------------------------------
+   Cores — semânticos (contexto claro: Ficha, Artist, A11y)
+   color/foreground/*, color/background/*, color/border/*, color/opacity/*
+   -------------------------------------------------------------------------- */
+:root {
+  --color-foreground-default: var(--color-black);
+  --color-foreground-secondary: var(--color-gray-800);
+  --color-background-default: #ffffff;
+  --color-border-default: var(--color-gray-100);
+  --color-border-subtle: #ededed;
+  --color-opacity-default-20: rgba(255, 255, 255, 0.2);
+  --color-opacity-neutral-40: rgba(26, 26, 26, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Cores — semânticos, contexto escuro (Navbar, Hero, Footer)
+   Mesmas variáveis do Figma, resolvidas para o modo escuro. Aplicar a
+   classe .theme-dark no wrapper das seções correspondentes.
+   -------------------------------------------------------------------------- */
+.theme-dark {
+  --color-foreground-default: #ffffff;
+  --color-foreground-secondary: #ededed;
+  --color-background-default: var(--color-black);
+  --color-border-default: #ededed;
+  --color-border-subtle: #ededed;
+  --color-border-inverse: #5b5b5b;
+  --color-opacity-neutral-40: rgba(255, 255, 255, 0.4);
+}
+
+/* --------------------------------------------------------------------------
+   Tipografia — famílias
+   typography/font-family/title, /body, typography/family/controls
+   -------------------------------------------------------------------------- */
+:root {
+  --font-family-title: "Plus Jakarta Sans";
+  --font-family-body: "Plus Jakarta Sans";
+  --font-family-controls: "Neue Montreal";
+}
+
+/* --------------------------------------------------------------------------
+   Tipografia — escala de tamanhos (rem, base 16px)
+   typography/size/h1..xs — mobile-first: valores do mode Mobile em :root,
+   mode Desktop sobrescrito no breakpoint único (min-width: 64rem).
+   -------------------------------------------------------------------------- */
+:root {
+  --typography-size-h1: 2rem;        /* 32px */
+  --typography-size-h2: 1.75rem;     /* 28px */
+  --typography-size-subtitle: 1rem;  /* 16px */
+  --typography-size-2xl: 1.25rem;    /* 20px */
+  --typography-size-md: 1rem;        /* 16px */
+  --typography-size-sm: 0.875rem;    /* 14px */
+  --typography-size-xs: 0.75rem;     /* 12px */
+
+  /* Logo (wordmark) — tamanho do peso ExtraBold, constante nas duas
+     instâncias corretas do componente (Navbar); não faz parte da escala
+     de texto responsiva. Ver docs/decisoes-tokens.md. */
+  --typography-size-logo-lg: 1.25rem; /* 20px */
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --typography-size-h1: 4rem;        /* 64px */
+    --typography-size-h2: 3rem;        /* 48px */
+    --typography-size-subtitle: 2rem;  /* 32px */
+    --typography-size-2xl: 1.75rem;    /* 28px */
+    --typography-size-md: 1.125rem;    /* 18px */
+    --typography-size-sm: 1rem;        /* 16px */
+    --typography-size-xs: 0.875rem;    /* 14px */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Layout — breakpoint tokens (rem, base 16px)
+   breakpoint/margin-left, /margin-top, /margin-bottom, /icon, /icon-border,
+   /viewport — mobile-first: valores do mode Mobile em :root, mode Desktop
+   sobrescrito no breakpoint único (min-width: 64rem).
+
+   --breakpoint-width não tem valor Mobile: entre 375px e 1440px o layout é
+   fluido (largura 100% via .container), nunca fixo em px — só existe token
+   de largura máxima para o mode Desktop. Ver docs/decisoes-tokens.md.
+   -------------------------------------------------------------------------- */
+:root {
+  --breakpoint-margin-left: 1.5rem;   /* 24px */
+  --breakpoint-margin-top: 1.5rem;    /* 24px */
+  --breakpoint-margin-bottom: 3rem;   /* 48px — constante entre breakpoints */
+  --breakpoint-icon: 1.25rem;         /* 20px */
+  --breakpoint-icon-border: 1px;
+  --breakpoint-viewport: 20.4375rem;  /* 327px — largura de cartão (Ficha), mode Mobile */
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --breakpoint-margin-left: 7.5rem;  /* 120px */
+    --breakpoint-margin-top: 6.5rem;   /* 104px */
+    --breakpoint-icon: 2rem;           /* 32px */
+    --breakpoint-icon-border: 1.25px;  /* espessura de traço, mantida em px */
+    --breakpoint-width: 90rem;         /* 1440px — largura máxima do container */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Espaçamento — escala (rem, base 16px)
+   Valores recorrentes em múltiplos componentes do escopo (Ficha/ListFicha/
+   ListItem, AccordionItem, Footer, Divider) sem variável correspondente no
+   Figma. Constantes entre Desktop/Mobile — normalizados aqui como escala
+   única em vez de literais repetidos pelo CSS de cada componente.
+   -------------------------------------------------------------------------- */
+:root {
+  --space-2: 0.125rem;   /* 2px */
+  --space-4: 0.25rem;    /* 4px */
+  --space-8: 0.5rem;     /* 8px */
+  --space-12: 0.75rem;   /* 12px */
+  --space-16: 1rem;      /* 16px */
+  --space-20: 1.25rem;   /* 20px */
+  --space-24: 1.5rem;    /* 24px */
+  --space-32: 2rem;      /* 32px */
+  --space-40: 2.5rem;    /* 40px */
+  --space-44: 2.75rem;   /* 44px */
+  --space-48: 3rem;      /* 48px */
+  --space-56: 3.5rem;    /* 56px */
+  --space-80: 5rem;      /* 80px */
+  --space-104: 6.5rem;   /* 104px */
+}
+
+/* --------------------------------------------------------------------------
+   Raio de borda
+   -------------------------------------------------------------------------- */
+:root {
+  --radius-pill: 6.1875rem; /* 99px — AudioPlayer, Divider, pílulas do ListItem */
+}
+
+/* --------------------------------------------------------------------------
+   Traço
+   Stroke/Divider Width
+   -------------------------------------------------------------------------- */
+:root {
+  --stroke-divider-width: 1px;
+}
+
+/* --------------------------------------------------------------------------
+   Base do body
+   -------------------------------------------------------------------------- */
+body {
+  background-color: var(--color-background-default);
+  color: var(--color-foreground-default);
+  font-family: var(--font-family-body), sans-serif;
+  font-size: var(--typography-size-sm);
+  line-height: 1.4;
+}
+
+/* --------------------------------------------------------------------------
+   Container — layout fluido entre 375px e 1440px (nunca fixo em px)
+   -------------------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--breakpoint-width, none);
+  margin-inline: auto;
+  padding-inline: var(--breakpoint-margin-left);
+}
+
+/* --------------------------------------------------------------------------
+   Estilos de texto (utilitários)
+   Styles/h1, /h2, /subtitle, /body/sm/regular, /body/sm/semibold,
+   /body/md/regular, /body/2xl/light, /body/2xs/light, /body/2xs/medium
+   -------------------------------------------------------------------------- */
+.text-heading-xl {
+  font-family: var(--font-family-title), sans-serif;
+  font-weight: 800;
+  font-size: var(--typography-size-h1);
+  line-height: 1.2;
+  letter-spacing: -0.0625rem; /* -1px */
+}
+
+.text-heading-lg {
+  font-family: var(--font-family-title), sans-serif;
+  font-weight: 800;
+  font-size: var(--typography-size-h2);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.text-subtitle {
+  font-family: var(--font-family-title), sans-serif;
+  font-weight: 400;
+  font-size: var(--typography-size-subtitle);
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.text-body-md-regular {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 400;
+  font-size: var(--typography-size-md);
+  line-height: 1.4;
+}
+
+.text-body-sm-regular {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 400;
+  font-size: var(--typography-size-sm);
+  line-height: 1.4;
+}
+
+.text-body-sm-semibold {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 600;
+  font-size: var(--typography-size-sm);
+  line-height: 1.4;
+}
+
+.text-body-2xl-light {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 300;
+  font-size: var(--typography-size-2xl);
+  line-height: 1.3;
+}
+
+.text-body-2xs-light {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 300;
+  font-size: var(--typography-size-xs);
+  line-height: 1.2;
+}
+
+.text-body-2xs-medium {
+  font-family: var(--font-family-body), sans-serif;
+  font-weight: 500;
+  font-size: var(--typography-size-xs);
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   Normalizações aplicadas (valores soltos/divergentes no Figma → token
+   existente mais próximo). Detalhe e motivo de cada uma em
+   docs/decisoes-tokens.md:
+
+     Espaçamento/gap solto (2, 4, 8, 12, 16, 20, 24, 32, 40, 44, 48, 56, 80,
+       104px) → --space-2 … --space-104
+     Raio 99px (AudioPlayer, Divider, pílulas do ListItem) → --radius-pill
+     Borda 1px (Footer, AccordionItem) e 0.5px (AudioPlayer) → var(--stroke-divider-width)
+     Cor do título/subtítulo do Hero (branco/#ededed fixos) →
+       var(--color-foreground-default) / var(--color-foreground-secondary)
+     Tipografia do heading "Links úteis" do Footer (14px fixo) →
+       var(--typography-size-xs)
+     Logo do Footer (33.6px/48px, instância redimensionada) → segue a
+       instância correta do Navbar: var(--typography-size-xs) no peso
+       Regular, var(--typography-size-logo-lg) no peso ExtraBold
+     Letter-spacing solto do título do Hero (-0.64px) → ignorado; usa o
+       -1px já definido em .text-heading-xl (estilo h1)
+     color/border/subtle no modo escuro (Figma resolve #ffffff) → mantido
+       #ededed no CSS (.theme-dark), sem alterar
+
+   Valores que permanecem sem token (uso único, não repetido no escopo):
+
+   Raio de borda:
+     4px — imagem do Artist (uso único; não vira token)
+
+   Layout:
+     ListFicha, card Desktop: 600px no Figma não está vinculado a variável
+     e não deve virar token fixo — ao implementar, usar layout fluido (%,
+     max-width no .container), nunca o valor fixo. Ver regra de
+     responsividade e docs/decisoes-tokens.md.
+
+   Sombras (box-shadow): nenhuma encontrada no escopo auditado.
+   ========================================================================== */
