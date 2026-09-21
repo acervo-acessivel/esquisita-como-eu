@@ -182,32 +182,6 @@
 }
 
 /* --------------------------------------------------------------------------
-   Títulos de seção fluidos (não vêm de variable do Figma)
-   O tamanho vai do h2 Mobile (typography/h2 = 28px) ao h2 Desktop (48px) e
-   acompanha a largura da coluna do título (cqi = 1% da largura do container
-   da coluna, definido em components.css). 9,85cqi dá 48px na coluna de 488px
-   do Desktop e 32px na de 324px do Tablet, os tamanhos do Figma.
-   A palavra mais longa (ACESSIBILIDADE) tem 8,22em. Com 9,85cqi ela ocupa 81%
-   da coluna. O teto de 12cqi (98,6% da coluna) só entra quando o mínimo de
-   28px, que cresce com o texto ampliado, deixaria a palavra maior que a
-   coluna: garante que ela sempre caiba, sem quebrar.
-   -------------------------------------------------------------------------- */
-:root {
-  --typography-h2-fluid-min:  1.75rem;
-  --typography-h2-fluid-max:  3rem;
-  --typography-h2-fluid-cqi:  9.85cqi;
-  --typography-h2-fluid-fit:  12cqi;
-  --typography-h2-fluid: min(
-    clamp(
-      var(--typography-h2-fluid-min),
-      var(--typography-h2-fluid-cqi),
-      var(--typography-h2-fluid-max)
-    ),
-    var(--typography-h2-fluid-fit)
-  );
-}
-
-/* --------------------------------------------------------------------------
    Tema (collection theme)
    Light é o padrão. Aplique .theme-dark no wrapper das seções em Dark
    (o Footer, por exemplo, está em Dark no Figma).
