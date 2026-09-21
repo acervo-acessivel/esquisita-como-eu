@@ -55,11 +55,8 @@ ul {
   margin: 0;
 }
 
-/* Com o texto ampliado, palavras longas (ACESSIBILIDADE, em caixa alta e
-   negrito) quebram em vez de sair da tela */
-h1,
-h2,
-h3,
+/* Valores da ficha (dt e dd) podem quebrar palavras longas. Os headings
+   (h1, h2, h3) nunca quebram palavras: os títulos de seção são fluidos. */
 dt,
 dd {
   overflow-wrap: anywhere;
@@ -475,6 +472,7 @@ html.js .audio-player audio {
 }
 
 .hero__title {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2); /* Figma: 16 (não vinculado) */
@@ -482,7 +480,7 @@ html.js .audio-player audio {
 
 .hero__title h1 {
   font-family: var(--typography-font-family-title), sans-serif;
-  font-size: var(--typography-h1);
+  font-size: var(--typography-h1); /* com teto em cqi em @supports, no fim do arquivo */
   font-weight: 800; /* sem token: ExtraBold */
   line-height: 1.2; /* sem token */
   letter-spacing: -0.01em; /* sem token: -1% */
@@ -519,11 +517,21 @@ html.js .audio-player audio {
   gap: var(--spacing-1);
 }
 
+/* Títulos de seção: tamanho fluido (tokens.css) em cqi da coluna do título.
+   Os containers (container-type) são a coluna de cada título: .a11y__title,
+   .ficha__title, .artist__content (Tablet e Desktop) e .artist__inner (Mobile,
+   quando .artist__content é display: contents e não gera caixa). */
+.a11y__title,
+.ficha__title,
+.artist__inner {
+  container-type: inline-size;
+}
+
 .a11y__title h2,
 .ficha h2,
 .artist h2 {
   font-family: var(--typography-font-family-title), sans-serif;
-  font-size: var(--typography-h2);
+  font-size: var(--typography-h2); /* fluido em @supports (cqi), no fim do arquivo */
   font-weight: 800; /* sem token: ExtraBold */
   line-height: 1.2; /* sem token */
   text-transform: uppercase;
@@ -541,7 +549,9 @@ html.js .audio-player audio {
   flex-direction: column;
 }
 
+/* Container do título (ver "Títulos fluidos", no fim do arquivo) */
 .accordion-item {
+  container-type: inline-size;
   --accordion-pad: var(--spacing-3); /* Mobile: 24 */
 
   border-bottom: 1px solid var(--color-border-default); /* sem token: 1px */
@@ -550,7 +560,7 @@ html.js .audio-player audio {
 /* Sem JS o título é só o heading, com o mesmo espaçamento e tipografia */
 .accordion-item__title {
   padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
-  font-size: var(--typography-xl);
+  font-size: var(--typography-xl); /* com teto em cqi em @supports, no fim do arquivo */
   font-weight: 300; /* sem token: Light */
   line-height: 1.3; /* sem token */
 }
@@ -568,10 +578,14 @@ html.js .audio-player audio {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-4);
+  /* Figma: 32. Com 16, e com quebra de linha do ícone, o texto e o ícone não
+     estouram a coluna quando o texto é ampliado (as palavras dos títulos não
+     quebram). Com o texto curto não muda nada: o ícone fica na ponta direita. */
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
   width: 100%;
   padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
-  font-size: var(--typography-xl);
+  font-size: var(--typography-xl); /* com teto em cqi em @supports, no fim do arquivo */
   font-weight: 300; /* sem token: Light */
   line-height: 1.3; /* sem token */
   text-align: start;
@@ -579,12 +593,6 @@ html.js .audio-player audio {
 
 .accordion-item:first-child .accordion-item__title button {
   padding-block-start: 0;
-}
-
-/* Com o texto ampliado, a palavra quebra em vez de empurrar o ícone para fora */
-.accordion-item__title button > span:first-child {
-  min-width: 0;
-  overflow-wrap: anywhere;
 }
 
 /* Mobile: com o painel aberto o título perde padding embaixo (Figma: 16) */
@@ -635,6 +643,7 @@ html.js .audio-player audio {
 .accordion-item__icon {
   position: relative;
   flex: none;
+  margin-inline-start: auto;
   width: var(--size-icon);
   height: var(--size-icon);
 }
@@ -778,7 +787,7 @@ html.js .audio-player audio {
     column-gap: var(--spacing-5); /* Figma: 40 */
   }
 
-  .ficha h2 {
+  .ficha__title {
     grid-column: 1 / span 4;
   }
 
@@ -802,7 +811,7 @@ html.js .audio-player audio {
     column-gap: var(--spacing-2_5); /* Figma: 20 */
   }
 
-  .ficha h2 {
+  .ficha__title {
     grid-column: 1 / span 5;
   }
 
@@ -922,6 +931,7 @@ html.js .audio-player audio {
   }
 
   .artist__content {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
@@ -1076,6 +1086,36 @@ html.js .audio-player audio {
     font-size: var(--typography-sm);
     font-weight: 600; /* sem token: Styles/body/sm/semibold */
     line-height: 1.4; /* sem token */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Títulos fluidos
+   Os headings nunca quebram palavras. O tamanho acompanha a largura da coluna
+   do título (unidade de container cqi) para que a palavra mais longa sempre
+   caiba em uma linha. Só vale em navegadores com cqi; nos outros ficam os
+   tamanhos por breakpoint dos tokens.
+   - h2 de seção: --typography-h2-fluid = min(clamp(28px, 9,85cqi, 48px), 12cqi).
+     ACESSIBILIDADE tem 8,22em e ocupa 81% da coluna.
+   - h1 do Hero: teto de 18cqi. ESQUISITA tem 5,29em.
+   - títulos do acordeão: teto de 13cqi. Audiodescrição tem 7,57em.
+   Os tetos de 12, 18 e 13cqi só entram quando o texto é ampliado (o mínimo em
+   rem cresce e a palavra deixaria de caber).
+   -------------------------------------------------------------------------- */
+@supports (width: 1cqi) {
+  .a11y__title h2,
+  .ficha h2,
+  .artist h2 {
+    font-size: var(--typography-h2-fluid);
+  }
+
+  .hero__title h1 {
+    font-size: min(var(--typography-h1), 18cqi);
+  }
+
+  .accordion-item__title,
+  .accordion-item__title button {
+    font-size: min(var(--typography-xl), 13cqi);
   }
 }
 
