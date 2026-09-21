@@ -159,18 +159,23 @@ main:focus {
 
 /* --------------------------------------------------------------------------
    Logo (usado no Navbar e no Footer)
-   Tamanhos fracionários do Figma, sem token. O tracking de -2,5% e a
-   sobreposição de linhas (-0,1em) reproduzem o itemSpacing negativo.
+   Imagem SVG (assets/images/logo.svg), com traço em #1A1A1A. Os dois usos
+   são em fundo escuro, então o filtro a deixa branca (foreground/inverse).
+   Altura pelo token size/logo/height (40, 32 e 24px). O Footer tem tamanho
+   próprio no Figma, mais abaixo.
    -------------------------------------------------------------------------- */
 .logo {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
+  display: block;
+  /* se a imagem não carregar, o alt aparece na cor do texto e sem sublinhado */
   color: inherit;
-  line-height: 1; /* sem token: 100% */
-  letter-spacing: -0.025em; /* sem token: -2,5% */
   text-decoration: none;
-  text-transform: lowercase;
+}
+
+.logo img {
+  display: block;
+  width: auto;
+  height: var(--size-logo-height);
+  filter: brightness(0) invert(1);
 }
 
 /* Alvo de toque de 44px sem aumentar a navbar: a área extra é um pseudo-elemento */
@@ -183,37 +188,6 @@ a.logo::after {
   position: absolute;
   inset-block: calc((100% - var(--target-min)) / 2);
   inset-inline: 0;
-}
-
-.logo__line:first-child {
-  font-weight: 400; /* sem token: Regular */
-  font-size: 0.65625rem; /* sem token: 10,5px */
-}
-
-.logo__line:last-child {
-  margin-top: -0.1em;
-  font-weight: 800; /* sem token: ExtraBold */
-  font-size: 0.984375rem; /* sem token: 15,75px */
-}
-
-@media (min-width: 48rem) {
-  .logo__line:first-child {
-    font-size: 0.875rem; /* sem token: 14px */
-  }
-
-  .logo__line:last-child {
-    font-size: 1.25rem; /* sem token: 20px */
-  }
-}
-
-@media (min-width: 64rem) {
-  .logo__line:first-child {
-    font-size: 1.08rem; /* sem token: 17,28px */
-  }
-
-  .logo__line:last-child {
-    font-size: 1.5431rem; /* sem token: 24,69px */
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -893,6 +867,7 @@ html.js .audio-player audio {
   height: 100%;
   border-radius: 2px; /* sem token: Mobile */
   object-fit: cover;
+  object-position: center top; /* não corta a cabeça ao redimensionar */
 }
 
 .artist__description {
@@ -994,13 +969,10 @@ html.js .audio-player audio {
   gap: var(--spacing-8); /* Figma: 64 */
 }
 
-/* Logo do Footer: tamanhos próprios do Figma (Mobile/Tablet iguais) */
-.footer .logo__line:first-child {
-  font-size: 1.5175rem; /* sem token: 24,28px */
-}
-
-.footer .logo__line:last-child {
-  font-size: 2.1681rem; /* sem token: 34,69px */
+/* Logo do Footer: altura própria do Figma, sem token (55,53px no Mobile e no
+   Tablet, 96,04px no Desktop). */
+.footer .logo img {
+  height: 3.47rem; /* sem token: 55,53px */
 }
 
 .footer__nav {
@@ -1088,12 +1060,8 @@ html.js .audio-player audio {
     row-gap: var(--spacing-6); /* Figma: 48 */
   }
 
-  .footer .logo__line:first-child {
-    font-size: 2.6088rem; /* sem token: 41,74px */
-  }
-
-  .footer .logo__line:last-child {
-    font-size: 3.7269rem; /* sem token: 59,63px */
+  .footer .logo img {
+    height: 6rem; /* sem token: 96,04px */
   }
 
   .footer__nav {
@@ -1150,7 +1118,8 @@ html.js .audio-player audio {
   .audio-player .icon,
   .hero .audio-player .icon,
   .artist .audio-player .icon,
-  .obra__zoom img {
+  .obra__zoom img,
+  .logo img {
     filter: brightness(0);
   }
 
@@ -1182,7 +1151,8 @@ html.js .audio-player audio {
   .audio-player .icon,
   .hero .audio-player .icon,
   .artist .audio-player .icon,
-  .obra__zoom img {
+  .obra__zoom img,
+  .logo img {
     filter: brightness(0) invert(1);
   }
 }
