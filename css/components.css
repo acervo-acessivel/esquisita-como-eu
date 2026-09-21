@@ -1,0 +1,1126 @@
+/* ==========================================================================
+   Esquisita como eu — Componentes (etapa 3)
+
+   Usa apenas os tokens de css/tokens.css. Mobile-first: Mobile no padrão,
+   Tablet em (min-width: 48rem), Desktop em (min-width: 64rem).
+
+   Ordem: base · navbar · hero · a11y · ficha · artist · footer.
+
+   Valores que NÃO são token (não há variable no Figma) aparecem literais e
+   marcados com "sem token". São só de 4 tipos:
+     - propriedades de estilo de texto (peso, altura de linha, tracking);
+     - raio de borda e espessura de traço;
+     - tamanhos fracionários do Logo e o padding de 112px do Footer;
+     - o alvo de toque mínimo de 44px, que vem do requisito de
+       acessibilidade e não do Figma.
+   Detalhe e justificativa: docs/etapa-3-componentes.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+:root {
+  /* Requisito de acessibilidade (44 × 44 px), não vem do Figma */
+  --target-min: 2.75rem;
+
+  /* Movimento: o Figma e o tokens.css não têm duração nem easing. Valores
+     que o CSS já usava (0,2s ease-out no ícone do acordeão) */
+  --motion-duration: 0.2s;
+  --motion-ease: ease-out;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background-default);
+  color: var(--color-foreground-default);
+  font-family: var(--typography-font-family-body), sans-serif;
+  font-size: var(--typography-sm);
+  line-height: 1.4; /* sem token: Styles/body/sm */
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ul {
+  margin: 0;
+}
+
+/* Com o texto ampliado, palavras longas (ACESSIBILIDADE, em caixa alta e
+   negrito) quebram em vez de sair da tela */
+h1,
+h2,
+h3,
+dt,
+dd {
+  overflow-wrap: anywhere;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+hr {
+  margin: 0;
+  border: 0;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Texto só para leitor de tela (região de status do zoom) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Foco visível. A cor troca em fundos escuros (navbar, hero, footer) */
+:focus-visible {
+  outline: var(--spacing-4xs) solid var(--focus-ring, var(--color-foreground-default));
+  outline-offset: var(--spacing-4xs);
+}
+
+/* main só recebe foco por script (destino do skip link): sem anel */
+main:focus {
+  outline: none;
+}
+
+/* Skip link: fora da tela até receber foco */
+.skip-link {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: 0;
+  inset-inline-start: var(--spacing-2);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: 0 var(--spacing-2);
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+  font-weight: 600; /* sem token: Styles/body/sm/semibold */
+  text-decoration: none;
+  transform: translateY(-100%);
+}
+
+.skip-link:focus {
+  transform: none;
+  --focus-ring: var(--color-foreground-inverse);
+  outline-offset: calc(var(--spacing-4xs) * -2);
+}
+
+/* Alvo de toque do acordeão (os botões do player têm área própria, abaixo) */
+.accordion-item__title button {
+  min-height: var(--target-min);
+}
+
+/* --------------------------------------------------------------------------
+   Logo (usado no Navbar e no Footer)
+   Tamanhos fracionários do Figma, sem token. O tracking de -2,5% e a
+   sobreposição de linhas (-0,1em) reproduzem o itemSpacing negativo.
+   -------------------------------------------------------------------------- */
+.logo {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  color: inherit;
+  line-height: 1; /* sem token: 100% */
+  letter-spacing: -0.025em; /* sem token: -2,5% */
+  text-decoration: none;
+  text-transform: lowercase;
+}
+
+/* Alvo de toque de 44px sem aumentar a navbar: a área extra é um pseudo-elemento */
+a.logo {
+  position: relative;
+}
+
+a.logo::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((100% - var(--target-min)) / 2);
+  inset-inline: 0;
+}
+
+.logo__line:first-child {
+  font-weight: 400; /* sem token: Regular */
+  font-size: 0.65625rem; /* sem token: 10,5px */
+}
+
+.logo__line:last-child {
+  margin-top: -0.1em;
+  font-weight: 800; /* sem token: ExtraBold */
+  font-size: 0.984375rem; /* sem token: 15,75px */
+}
+
+@media (min-width: 48rem) {
+  .logo__line:first-child {
+    font-size: 0.875rem; /* sem token: 14px */
+  }
+
+  .logo__line:last-child {
+    font-size: 1.25rem; /* sem token: 20px */
+  }
+}
+
+@media (min-width: 64rem) {
+  .logo__line:first-child {
+    font-size: 1.08rem; /* sem token: 17,28px */
+  }
+
+  .logo__line:last-child {
+    font-size: 1.5431rem; /* sem token: 24,69px */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   AudioPlayer (Hero e Artist)
+   Padrão: variante Color=dark (fundo escuro). No Artist é Color=light.
+   Ícones: os SVGs de assets/icons vêm com fill #494949 (gray/800); no fundo
+   escuro o filtro os deixa brancos (foreground/inverse).
+   -------------------------------------------------------------------------- */
+.audio-player {
+  --audio-track: var(--color-opacity-default-40);
+
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-1) var(--spacing-1_5);
+  max-width: 100%;
+  min-height: var(--target-min); /* Figma: 44 */
+  padding: var(--spacing-1) var(--spacing-2);
+  border: 0.5px solid var(--color-border-default); /* sem token: stroke 0,5 */
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-opacity-default-20);
+  -webkit-backdrop-filter: blur(4px); /* sem token: efeito GLASS blur 4 */
+  backdrop-filter: blur(4px);
+  color: var(--color-foreground-inverse);
+  font-family: var(--typography-font-family-controls), sans-serif;
+  font-size: var(--typography-md);
+  line-height: 1; /* sem token: 100% */
+}
+
+/* Sem JS: o player nativo (<audio controls>) no lugar dos controles do desenho.
+   Com JS (classe .js), o <audio> fica escondido e os botões assumem. */
+html:not(.js) .audio-player {
+  padding: 0;
+  border: 0;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html:not(.js) .audio-player > :not(audio) {
+  display: none;
+}
+
+html.js .audio-player audio {
+  display: none;
+}
+
+.audio-player .icon {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+  filter: brightness(0) invert(1);
+}
+
+.audio-player__transport {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.audio-player__time {
+  display: flex;
+  gap: var(--spacing-0_5);
+  white-space: nowrap;
+}
+
+/* Botões de 24px com área de toque de 44px, sem mudar o desenho */
+.audio-player__play,
+.audio-player__mute,
+.audio-player__speed {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+}
+
+.audio-player__play::after,
+.audio-player__mute::after,
+.audio-player__speed::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--spacing-2_5) / -2);
+}
+
+.audio-player__speed {
+  line-height: var(--spacing-3);
+  white-space: nowrap;
+}
+
+/* Em telas estreitas a barra ocupa o espaço que sobra na linha */
+@media (max-width: 22.5rem) {
+  .audio-player__progress {
+    flex-grow: 1;
+  }
+}
+
+.audio-player__progress {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 1 5.5rem; /* sem token: 88px */
+  min-width: var(--spacing-5);
+  height: var(--spacing-0_5);
+  overflow: hidden;
+  border: 0;
+  border-radius: 99px; /* sem token: pill */
+  background: var(--audio-track);
+  color: transparent; /* esconde o texto de fallback "0%" */
+}
+
+.audio-player__progress::-webkit-progress-bar {
+  background: transparent;
+}
+
+.audio-player__progress::-webkit-progress-value {
+  background: var(--audio-track);
+}
+
+.audio-player__progress::-moz-progress-bar {
+  background: var(--audio-track);
+}
+
+.audio-player__options {
+  display: flex;
+  align-items: center;
+  margin-inline-start: auto; /* quando quebra de linha, fica à direita */
+  gap: var(--spacing-2_5); /* Figma: 8. Sobe para 20 para os alvos de 44px não se sobreporem */
+}
+
+/* --------------------------------------------------------------------------
+   Navbar
+   Mobile: só o logo, centralizado (o Figma não tem menu no Mobile).
+   -------------------------------------------------------------------------- */
+.navbar {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--size-nav-height); /* mínimo: cresce se o texto for ampliado */
+  padding: var(--spacing-2) 0 var(--spacing-2_5);
+  border-bottom: 1px solid var(--color-border-strong); /* sem token: 1px */
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+}
+
+.navbar__nav {
+  display: none;
+}
+
+.navbar__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--spacing-4); /* Figma: 32 (não vinculado) */
+}
+
+.navbar__list a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  color: inherit;
+  font-size: var(--typography-sm);
+  font-weight: 400; /* sem token: Styles/body/sm/regular */
+  line-height: 1.4; /* sem token */
+  text-decoration: none;
+}
+
+@media (min-width: 48rem) {
+  .navbar {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--spacing-1) var(--spacing-4xl);
+    /* 8 em cima e 8 + 2 embaixo mantêm o centro do desenho (0 e 2) */
+    padding: var(--spacing-1) var(--margin-left) calc(var(--spacing-1) + var(--spacing-4xs));
+  }
+
+  .navbar__nav {
+    display: block;
+  }
+}
+
+@media (min-width: 64rem) {
+  .navbar__list a {
+    font-weight: 500; /* sem token: Styles/body/sm/medium */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Hero (+ Obra)
+   -------------------------------------------------------------------------- */
+.hero {
+  --focus-ring: var(--color-foreground-inverse);
+
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+}
+
+.hero__image {
+  position: relative;
+}
+
+/* Viewport do zoom: mantém a altura da imagem sem zoom. Com zoom > 1 vira
+   área rolável e o teclado passa a mover a imagem (tabindex via JS). */
+.obra__viewport {
+  aspect-ratio: 1440 / 722; /* sem token: proporção da imagem (art.png) */
+  overflow: hidden;
+}
+
+.obra__viewport[data-zoomed] {
+  overflow: auto;
+}
+
+.obra__viewport img {
+  width: calc(100% * var(--obra-zoom, 1));
+  max-width: none;
+  height: auto;
+}
+
+.obra__zoom {
+  position: absolute;
+  inset-block-end: var(--spacing-2);
+  inset-inline-end: var(--margin-right);
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.obra__zoom button {
+  display: grid;
+  place-items: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  border: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-background-inverse);
+}
+
+.obra__zoom img {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+  filter: brightness(0) invert(1); /* SVG vem em gray/800; aqui é branco (foreground/inverse) */
+}
+
+.obra__zoom button:focus-visible {
+  outline-offset: 0;
+  box-shadow: 0 0 0 calc(var(--spacing-4xs) * 2) var(--color-background-inverse);
+}
+
+.obra__zoom button:disabled {
+  opacity: 0.4; /* sem token: estado desabilitado */
+  cursor: not-allowed;
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-block: var(--spacing-3xl) var(--spacing-4xl);
+}
+
+.hero__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2); /* Figma: 16 (não vinculado) */
+  padding-inline: var(--margin-left);
+}
+
+.hero__title h1 {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-h1);
+  font-weight: 800; /* sem token: ExtraBold */
+  line-height: 1.2; /* sem token */
+  letter-spacing: -0.01em; /* sem token: -1% */
+  text-transform: uppercase;
+}
+
+.hero__subtitle {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-subtitle);
+  font-weight: 400; /* sem token: Regular */
+  line-height: 1.2; /* sem token */
+}
+
+.hero__content > .audio-player {
+  align-self: flex-start;
+  max-width: calc(100% - var(--margin-left) - var(--margin-right));
+  margin-inline: var(--margin-left);
+}
+
+@media (min-width: 48rem) {
+  .hero__content {
+    padding-block-start: var(--spacing-2xl);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   A11y + AccordionList + AccordionItem
+   -------------------------------------------------------------------------- */
+.a11y {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-5); /* Figma: 40 (não vinculado) */
+  padding: var(--margin-top) var(--margin-left) var(--margin-bottom);
+}
+
+.a11y__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.a11y__title h2,
+.ficha h2,
+.artist h2 {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-h2);
+  font-weight: 800; /* sem token: ExtraBold */
+  line-height: 1.2; /* sem token */
+  text-transform: uppercase;
+}
+
+.a11y__title p {
+  font-size: var(--typography-md);
+  font-weight: 400; /* sem token: Styles/body/md/regular */
+  line-height: 1.4; /* sem token */
+  /* Figma Mobile: foreground/default. Tablet e Desktop: foreground/secondary */
+}
+
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.accordion-item {
+  --accordion-pad: var(--spacing-3); /* Mobile: 24 */
+
+  border-bottom: 1px solid var(--color-border-default); /* sem token: 1px */
+}
+
+/* Sem JS o título é só o heading, com o mesmo espaçamento e tipografia */
+.accordion-item__title {
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
+  font-size: var(--typography-xl);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.3; /* sem token */
+}
+
+.accordion-item:first-child .accordion-item__title {
+  padding-block-start: 0;
+}
+
+/* Com JS o padding passa para o botão (área de toque inteira) */
+.js .accordion-item__title {
+  padding-block: 0;
+}
+
+.accordion-item__title button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  width: 100%;
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
+  font-size: var(--typography-xl);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.3; /* sem token */
+  text-align: start;
+}
+
+.accordion-item:first-child .accordion-item__title button {
+  padding-block-start: 0;
+}
+
+/* Com o texto ampliado, a palavra quebra em vez de empurrar o ícone para fora */
+.accordion-item__title button > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Mobile: com o painel aberto o título perde padding embaixo (Figma: 16) */
+.accordion-item__title button[aria-expanded="true"] {
+  padding-block-end: var(--spacing-2);
+}
+
+/* Painel: grid de 1 linha que anima de 0fr a 1fr. O conteúdo fechado fica
+   com visibility:hidden (some da árvore de acessibilidade e do Tab) e o JS
+   também põe inert. Sem JS a classe .js não existe e tudo fica aberto. */
+.accordion-item__answer {
+  display: grid;
+  grid-template-rows: 1fr;
+  font-size: var(--typography-md);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.4; /* sem token */
+}
+
+.accordion-item__content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accordion-item__content p {
+  padding: 0 var(--spacing-8) calc(var(--accordion-pad) - 1px) 0;
+}
+
+.js .accordion-item__answer {
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--motion-duration) var(--motion-ease),
+    visibility 0s linear var(--motion-duration);
+}
+
+.js .accordion-item[data-open] .accordion-item__answer {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--motion-duration) var(--motion-ease),
+    visibility 0s;
+}
+
+/* Ícone mais/menos desenhado em CSS (não há SVG em assets/icons) */
+.accordion-item__icon {
+  position: relative;
+  flex: none;
+  width: var(--size-icon);
+  height: var(--size-icon);
+}
+
+.accordion-item__icon::before,
+.accordion-item__icon::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline: 15.625%; /* sem token: traço com 68,75% da caixa */
+  height: var(--size-icon-border);
+  background: currentColor;
+  transform: translateY(-50%);
+}
+
+.accordion-item__icon::after {
+  transform: translateY(-50%) rotate(90deg);
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+[aria-expanded="true"] .accordion-item__icon::after {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+@media (min-width: 48rem) {
+  .a11y {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-5); /* Figma: 40 */
+    padding-block-end: var(--margin-top);
+  }
+
+  .a11y__title {
+    grid-column: 1 / span 4;
+    gap: var(--spacing-2);
+  }
+
+  .a11y__title p {
+    color: var(--color-foreground-secondary);
+  }
+
+  .accordion-list {
+    grid-column: 5 / span 4;
+  }
+
+  .accordion-item {
+    --accordion-pad: 1.75rem; /* sem token: 28, decisão de design (Tablet) */
+  }
+
+  .accordion-item__title button[aria-expanded="true"] {
+    padding-block-end: var(--accordion-pad);
+  }
+
+}
+
+@media (min-width: 64rem) {
+  .a11y {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .a11y__title {
+    grid-column: 1 / span 5;
+  }
+
+  .accordion-list {
+    grid-column: 7 / span 6;
+  }
+
+  .accordion-item {
+    --accordion-pad: var(--spacing-4); /* Desktop: 32 */
+  }
+
+  /* size/icon vale 32 no Desktop, mas o ícone do Figma tem 24 */
+  .accordion-item__icon {
+    width: var(--spacing-3);
+    height: var(--spacing-3);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Ficha + ListFicha + ListItem
+   -------------------------------------------------------------------------- */
+.ficha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 (não vinculado) */
+  /* Mobile: o padding de baixo usa margin/top (decisão de design) */
+  padding: var(--margin-top) var(--margin-left);
+}
+
+.list-ficha {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: grid;
+  row-gap: var(--spacing-0_25); /* Figma: 2 no Mobile (frame "Text") */
+  padding: var(--spacing-1) 0;
+}
+
+/* Divisor desenhado à mão no Figma (frame de 1px). O espaço até ele é o
+   itemSpacing do ListItem: 16 no Mobile (decisão de design, sem vínculo),
+   spacing/sm nos outros breakpoints. */
+.list-item:not(:last-child)::after {
+  content: "";
+  height: 1px; /* sem token: Stroke/Divider Width */
+  margin-block-start: calc(var(--spacing-2) - var(--spacing-0_25));
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-border-default);
+}
+
+.list-item dt {
+  color: var(--color-foreground-secondary);
+  font-size: var(--typography-xs);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.2; /* sem token */
+}
+
+.list-item dd {
+  font-size: var(--typography-xl);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.3; /* sem token */
+}
+
+@media (min-width: 48rem) {
+  .ficha {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-5); /* Figma: 40 */
+    padding-block-end: var(--margin-bottom);
+  }
+
+  .ficha h2 {
+    grid-column: 1 / span 4;
+  }
+
+  .list-ficha {
+    grid-column: 5 / span 4;
+  }
+
+  .list-item {
+    row-gap: var(--spacing-0_5); /* Figma: 4 */
+    padding: var(--spacing-1) var(--spacing-sm) var(--spacing-2);
+  }
+
+  .list-item:not(:last-child)::after {
+    margin-block-start: calc(var(--spacing-sm) - var(--spacing-0_5));
+  }
+}
+
+@media (min-width: 64rem) {
+  .ficha {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .ficha h2 {
+    grid-column: 1 / span 5;
+  }
+
+  .list-ficha {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+.divider {
+  height: calc(var(--spacing-2) * 2 + 1px); /* Figma: 33 = 16 + 1 + 16 */
+  padding-inline: var(--margin-left);
+  background: var(--color-background-default);
+}
+
+.divider::before {
+  content: "";
+  display: block;
+  height: 1px; /* sem token */
+  margin-block-start: var(--spacing-2);
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   Artist + Audiodescription
+   Mobile: título, foto, texto, player (ordem do Figma). O DOM tem foto antes
+   do título; grid-row reordena só no visual.
+   -------------------------------------------------------------------------- */
+.artist {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 */
+  padding: var(--margin-top) var(--margin-left);
+}
+
+.artist__content {
+  display: contents;
+}
+
+.artist h2 {
+  grid-row: 1;
+}
+
+.artist__image {
+  position: relative;
+  grid-row: 2;
+  aspect-ratio: 327 / 300; /* sem token: 327 × 300 do Figma */
+}
+
+.artist__image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px; /* sem token: Mobile */
+  object-fit: cover;
+}
+
+.artist__description {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  grid-row: 3;
+  font-size: var(--typography-sm);
+  font-weight: 400; /* sem token: Styles/body/sm/regular */
+  line-height: 1.4; /* sem token */
+}
+
+.audiodescription {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  grid-row: 4;
+}
+
+.artist .audio-player {
+  --audio-track: var(--color-opacity-neutral-40);
+
+  color: var(--color-foreground-secondary);
+}
+
+.artist .audio-player .icon {
+  filter: none;
+}
+
+@media (min-width: 48rem) {
+  .artist {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: var(--spacing-5); /* Figma: 40 */
+    padding-block: var(--margin-top);
+  }
+
+  .artist__image {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    aspect-ratio: auto;
+  }
+
+  .artist__image img {
+    border-radius: 4px; /* sem token */
+  }
+
+  .artist__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    grid-column: 5 / span 4;
+    grid-row: 1;
+  }
+}
+
+@media (min-width: 64rem) {
+  .artist {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .artist__image {
+    grid-column: 1 / span 5;
+  }
+
+  .artist__content {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.footer {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 */
+  padding: var(--spacing-5) var(--margin-left) var(--spacing-7);
+  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+}
+
+.footer__top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8); /* Figma: 64 */
+}
+
+/* Logo do Footer: tamanhos próprios do Figma (Mobile/Tablet iguais) */
+.footer .logo__line:first-child {
+  font-size: 1.5175rem; /* sem token: 24,28px */
+}
+
+.footer .logo__line:last-child {
+  font-size: 2.1681rem; /* sem token: 34,69px */
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1_5); /* Figma: 12 */
+}
+
+.footer__nav h2 {
+  font-size: var(--typography-sm);
+  font-weight: 600; /* sem token: Styles/body/sm/semibold */
+  line-height: 1.4; /* sem token */
+}
+
+.footer__nav ul {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Figma: espaço entre itens 0 (Mobile), 16 (Tablet), 12 (Desktop) com texto
+   de ~14px. Aqui cada link tem 44px de altura e o espaço vem dela. */
+.footer__nav a {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+  color: inherit;
+  font-size: var(--typography-xs);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.2; /* sem token */
+  text-decoration: none;
+}
+
+.footer__divider {
+  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+}
+
+.footer__copyright {
+  font-size: var(--typography-xs);
+  font-weight: 500; /* sem token: Styles/body/2xs/medium */
+  line-height: 1.2; /* sem token */
+}
+
+@media (min-width: 48rem) {
+  .footer {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: var(--spacing-5); /* Figma: 40 */
+  }
+
+  .footer__top {
+    display: contents;
+  }
+
+  .footer .logo {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  .footer__nav {
+    grid-column: 6 / span 3;
+    grid-row: 1;
+  }
+
+  .footer__divider {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .footer__copyright {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    text-align: center;
+  }
+}
+
+@media (min-width: 64rem) {
+  .footer {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto var(--spacing-0_5) auto; /* Figma: linha do divisor com 4 */
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+    row-gap: var(--spacing-6); /* Figma: 48 */
+    padding-block: 7rem; /* sem token: 112 (decisão de design em aberto) */
+  }
+
+  .footer .logo__line:first-child {
+    font-size: 2.6088rem; /* sem token: 41,74px */
+  }
+
+  .footer .logo__line:last-child {
+    font-size: 3.7269rem; /* sem token: 59,63px */
+  }
+
+  .footer__nav {
+    grid-column: 9 / span 4;
+  }
+
+  .footer__divider {
+    align-self: center;
+  }
+
+  .footer__copyright {
+    font-size: var(--typography-sm);
+    font-weight: 600; /* sem token: Styles/body/sm/semibold */
+    line-height: 1.4; /* sem token */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Movimento
+   Sem preferência: rolagem suave e transições. Com reduce: nenhuma animação
+   nem transição, e a mudança de estado é imediata.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .skip-link {
+    transition: transform 0.15s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Cores forçadas (Alto Contraste do Windows)
+   O navegador troca as cores por cores do sistema. Os ícones são <img> com
+   cor fixa, e o mais/menos do acordeão e a barra de progresso são fundos, que
+   sumiriam. prefers-color-scheme acompanha o fundo do tema de alto contraste.
+   -------------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .audio-player .icon,
+  .artist .audio-player .icon,
+  .obra__zoom img {
+    filter: brightness(0);
+  }
+
+  .accordion-item__icon::before,
+  .accordion-item__icon::after {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  .audio-player__progress {
+    border: 1px solid CanvasText;
+  }
+
+  .audio-player__progress::-webkit-progress-value {
+    background: Highlight;
+  }
+
+  .audio-player__progress::-moz-progress-bar {
+    background: Highlight;
+  }
+
+  .obra__zoom button:disabled {
+    opacity: 1;
+    border-color: GrayText;
+  }
+}
+
+@media (forced-colors: active) and (prefers-color-scheme: dark) {
+  .audio-player .icon,
+  .artist .audio-player .icon,
+  .obra__zoom img {
+    filter: brightness(0) invert(1);
+  }
+}

@@ -1,0 +1,210 @@
+/* ==========================================================================
+   Esquisita como eu — Design tokens (etapa 1)
+
+   Fonte: variables do arquivo Figma GoUtcRxZO2sf3t84wFCfAb, lidas em 2026-09-21
+   (collections primitives, responsive e theme). Mapeamento variable → custom
+   property em docs/etapa-1-tokens.md.
+
+   Convenção de nomes: o nome da variable do Figma com "/" trocado por "-" e
+   prefixado por "--" (color/foreground/default → --color-foreground-default).
+
+   Mobile-first (collection responsive):
+     :root                       mode Mobile  (referência 375px)
+     @media (min-width: 48rem)   mode Tablet  (referência 800px)
+     @media (min-width: 64rem)   mode Desktop (referência 1440px)
+   Os overrides listam só o que muda em relação ao breakpoint anterior.
+
+   Tema (collection theme): Light em :root e .theme-light, Dark em .theme-dark.
+
+   Unidades: rem (base 16px) para tipografia, espaçamento, margens e tamanhos.
+   px só em size/icon-border, que é espessura de traço.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Primitivos (collection primitives)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Famílias tipográficas */
+  --typography-font-family-title:     "Plus Jakarta Sans";
+  --typography-font-family-body:      "Plus Jakarta Sans";
+  --typography-font-family-controls:  Arial;
+
+  /* Cores */
+  --color-black:     #1a1a1a;
+  --color-white:     #ffffff;
+  --color-blue:      #607490;
+  --color-gray-50:   #ededed;
+  --color-gray-100:  #dbdbdb;
+  --color-gray-200:  #c8c8c8;
+  --color-gray-300:  #b6b6b6;
+  --color-gray-400:  #a4a4a4;
+  --color-gray-500:  #808080;
+  --color-gray-600:  #6d6d6d;
+  --color-gray-700:  #5b5b5b;
+  --color-gray-800:  #494949;
+  --color-gray-900:  #373737;
+
+  /* Espaçamento (escala fixa, igual em todos os breakpoints) */
+  --spacing-0_25:  0.125rem;
+  --spacing-0_5:   0.25rem;
+  --spacing-1:     0.5rem;
+  --spacing-1_5:   0.75rem;
+  --spacing-2:     1rem;
+  --spacing-2_5:   1.25rem;
+  --spacing-3:     1.5rem;
+  --spacing-4:     2rem;
+  --spacing-5:     2.5rem;
+  --spacing-6:     3rem;
+  --spacing-7:     3.5rem;
+  --spacing-8:     4rem;
+}
+
+/* --------------------------------------------------------------------------
+   Responsivos (collection responsive) — Mobile é o padrão
+   -------------------------------------------------------------------------- */
+:root {
+  /* Tamanhos */
+  --size-width:        23.4375rem;
+  --size-viewport:     20.4375rem;
+  --size-icon:         1.25rem;
+  --size-icon-border:  1px;
+  --size-nav-height:   4rem;
+  --size-logo-height:  1.5rem;
+
+  /* Margens */
+  --margin-top:     2rem;
+  --margin-bottom:  2.5rem;
+  --margin-left:    1.5rem;
+  --margin-right:   1.5rem;
+
+  /* Espaçamento */
+  --spacing-4xl:  2rem;
+  --spacing-3xl:  1.5rem;
+  --spacing-2xl:  1rem;
+  --spacing-xl:   2rem;
+  --spacing-lg:   1.5rem;
+  --spacing-md:   1rem;
+  --spacing-sm:   0.5rem;
+  --spacing-xs:   0.25rem;
+  --spacing-2xs:  0.125rem;
+  --spacing-3xs:  0.125rem;
+  --spacing-4xs:  0.125rem;
+
+  /* Tipografia (tamanho de fonte) */
+  --typography-h1:        2rem;
+  --typography-h2:        1.75rem;
+  --typography-subtitle:  1rem;
+  --typography-3xl:       1.25rem;
+  --typography-2xl:       1rem;
+  --typography-xl:        1rem;
+  --typography-lg:        1.125rem;
+  --typography-md:        0.875rem;
+  --typography-sm:        0.875rem;
+  --typography-xs:        0.75rem;
+  --typography-2xs:       0.75rem;
+}
+
+/* Tablet (referência 800px). Sem override, iguais ao breakpoint anterior:
+   --size-viewport, --size-icon-border, --spacing-3xs, --spacing-4xs, --typography-lg, --typography-sm, --typography-xs, --typography-2xs */
+@media (min-width: 48rem) {
+  :root {
+    --size-width:           50rem;
+    --size-icon:            1.5rem;
+    --size-nav-height:      4.5rem;
+    --size-logo-height:     2rem;
+    --margin-top:           3rem;
+    --margin-bottom:        3.5rem;
+    --margin-left:          3.5rem;
+    --margin-right:         3.5rem;
+    --spacing-4xl:          3rem;
+    --spacing-3xl:          2.5rem;
+    --spacing-2xl:          2rem;
+    --spacing-xl:           2.5rem;
+    --spacing-lg:           2rem;
+    --spacing-md:           1.5rem;
+    --spacing-sm:           1rem;
+    --spacing-xs:           0.5rem;
+    --spacing-2xs:          0.25rem;
+    --typography-h1:        3rem;
+    --typography-h2:        2rem;
+    --typography-subtitle:  1.5rem;
+    --typography-3xl:       1.5rem;
+    --typography-2xl:       1.25rem;
+    --typography-xl:        1.25rem;
+    --typography-md:        1rem;
+  }
+}
+
+/* Desktop (referência 1440px). Sem override, iguais ao breakpoint anterior:
+   --spacing-4xs, --typography-2xs */
+@media (min-width: 64rem) {
+  :root {
+    --size-width:           90rem;
+    --size-viewport:        75rem;
+    --size-icon:            2rem;
+    --size-icon-border:     1.25px;
+    --size-nav-height:      5rem;
+    --size-logo-height:     2.5rem;
+    --margin-top:           5rem;
+    --margin-bottom:        6.5rem;
+    --margin-left:          7.5rem;
+    --margin-right:         7.5rem;
+    --spacing-4xl:          5rem;
+    --spacing-3xl:          4rem;
+    --spacing-2xl:          3.5rem;
+    --spacing-xl:           3rem;
+    --spacing-lg:           2.5rem;
+    --spacing-md:           2rem;
+    --spacing-sm:           1.5rem;
+    --spacing-xs:           1rem;
+    --spacing-2xs:          0.5rem;
+    --spacing-3xs:          0.25rem;
+    --typography-h1:        4rem;
+    --typography-h2:        3rem;
+    --typography-subtitle:  2rem;
+    --typography-3xl:       2rem;
+    --typography-2xl:       1.75rem;
+    --typography-xl:        1.5rem;
+    --typography-lg:        1.25rem;
+    --typography-md:        1.125rem;
+    --typography-sm:        1rem;
+    --typography-xs:        0.875rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tema (collection theme)
+   Light é o padrão. Aplique .theme-dark no wrapper das seções em Dark
+   (o Footer, por exemplo, está em Dark no Figma).
+   -------------------------------------------------------------------------- */
+:root,
+.theme-light {
+  --color-background-default:    var(--color-white);
+  --color-background-inverse:    var(--color-black);
+  --color-foreground-default:    var(--color-black);
+  --color-foreground-secondary:  var(--color-gray-800);
+  --color-foreground-inverse:    var(--color-white);
+  --color-foreground-brand:      #607490;
+  --color-border-default:        var(--color-gray-100);
+  --color-border-strong:         var(--color-gray-200);
+  --color-border-subtle:         var(--color-gray-50);
+  --color-border-inverse:        var(--color-gray-800);
+  --color-opacity-default-20:    color-mix(in srgb, var(--color-white) 20%, transparent);
+  --color-opacity-default-40:    color-mix(in srgb, var(--color-white) 40%, transparent);
+  --color-opacity-neutral-20:    color-mix(in srgb, var(--color-black) 20%, transparent);
+  --color-opacity-neutral-40:    color-mix(in srgb, var(--color-black) 40%, transparent);
+}
+
+/* Sem override em Dark (iguais ao Light): --color-background-inverse, --color-foreground-inverse, --color-opacity-default-20, --color-opacity-default-40 */
+.theme-dark {
+  --color-background-default:    var(--color-black);
+  --color-foreground-default:    var(--color-white);
+  --color-foreground-secondary:  var(--color-gray-50);
+  --color-foreground-brand:      #a3b0c2;
+  --color-border-default:        var(--color-gray-50);
+  --color-border-strong:         var(--color-gray-100);
+  --color-border-subtle:         var(--color-white);
+  --color-border-inverse:        var(--color-gray-700);
+  --color-opacity-neutral-20:    color-mix(in srgb, var(--color-white) 20%, transparent);
+  --color-opacity-neutral-40:    color-mix(in srgb, var(--color-white) 40%, transparent);
+}
