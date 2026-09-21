@@ -33,23 +33,25 @@
   <main id="main" tabindex="-1">
 
     <section class="hero" id="obra" aria-labelledby="hero-titulo">
-      <div class="hero__image obra">
-        <div class="obra__viewport" id="obra-viewport">
-          <img
-            src="assets/images/art.png"
-            width="1440"
-            height="722"
-            alt="Pintura de uma menina voando num céu azul-escuro cheio de estrelas e bolinhas brancas. Ela tem cabelos de fios coloridos com flores e um olho grande. Ao redor dela flutuam brinquedos: um boneco de cartola, uma boneca num carrinho, um urso roxo, um cachorro amarelo com laço e um robô."
-          />
-        </div>
+      <div class="hero__image container">
+        <div class="obra">
+          <div class="obra__viewport" id="obra-viewport">
+            <img
+              src="assets/images/art-moldura.jpg"
+              width="1600"
+              height="871"
+              alt="Pintura dentro de uma moldura de madeira clara. Uma menina voa num céu azul-escuro cheio de estrelas e bolinhas brancas. Ela tem cabelos de fios coloridos com flores e um olho grande. Ao redor dela flutuam brinquedos: um boneco de cartola, uma boneca num carrinho, um urso roxo, um cachorro amarelo com laço e um robô."
+            />
+          </div>
 
-        <div class="obra__zoom" role="group" aria-label="Zoom da obra" hidden>
-          <button type="button" class="obra__zoom-out" aria-label="Diminuir zoom da obra" aria-controls="obra-viewport" disabled>
-            <img src="assets/icons/zoom-out.svg" width="24" height="24" alt="" />
-          </button>
-          <button type="button" class="obra__zoom-in" aria-label="Aumentar zoom da obra" aria-controls="obra-viewport">
-            <img src="assets/icons/zoom-in.svg" width="24" height="24" alt="" />
-          </button>
+          <div class="obra__zoom" role="group" aria-label="Zoom da obra" hidden>
+            <button type="button" class="obra__zoom-out" aria-label="Diminuir zoom da obra" aria-controls="obra-viewport" disabled>
+              <img src="assets/icons/zoom-out.svg" width="24" height="24" alt="" />
+            </button>
+            <button type="button" class="obra__zoom-in" aria-label="Aumentar zoom da obra" aria-controls="obra-viewport">
+              <img src="assets/icons/zoom-in.svg" width="24" height="24" alt="" />
+            </button>
+          </div>
         </div>
         <p class="visually-hidden" id="obra-zoom-status" role="status"></p>
       </div>

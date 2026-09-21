@@ -118,7 +118,7 @@ button {
   padding-inline: var(--margin-left) var(--margin-right);
 }
 
-/* Foco visível. A cor troca em fundos escuros (navbar, hero, footer) */
+/* Foco visível. A cor troca em fundos escuros (navbar, footer, botões de zoom) */
 :focus-visible {
   outline: var(--spacing-4xs) solid var(--focus-ring, var(--color-foreground-default));
   outline-offset: var(--spacing-4xs);
@@ -416,20 +416,32 @@ html.js .audio-player audio {
    Hero (+ Obra)
    -------------------------------------------------------------------------- */
 .hero {
-  --focus-ring: var(--color-foreground-inverse);
-
-  background: var(--color-background-inverse);
-  color: var(--color-foreground-inverse);
+  background: var(--color-background-default);
+  color: var(--color-foreground-default);
 }
 
+/* Imagem dentro do container (margens laterais do Figma), com o respiro de
+   cima do Figma (40, 32, 24 = spacing/lg em cada breakpoint) */
 .hero__image {
-  position: relative;
+  padding-block-start: var(--spacing-lg);
 }
 
-/* Viewport do zoom: mantém a altura da imagem sem zoom. Com zoom > 1 vira
-   área rolável e o teclado passa a mover a imagem (tabindex via JS). */
+/* Quadro da obra. A proporção é a da imagem com moldura (1600 × 871, a mesma
+   do quadro do Figma) e a altura nunca passa de 80% da janela. Se passar, a
+   proporção reduz a largura também e o quadro fica centralizado. */
+.obra {
+  position: relative;
+  aspect-ratio: 1600 / 871; /* sem token: proporção da imagem com moldura */
+  max-height: 80vh; /* sem token */
+  margin-inline: auto;
+}
+
+/* Viewport do zoom: ocupa o quadro. A imagem ocupa o viewport inteiro com
+   object-fit: contain, então nunca é cortada. Com zoom > 1 vira área rolável
+   e o teclado passa a mover a imagem (tabindex via JS). */
 .obra__viewport {
-  aspect-ratio: 1440 / 722; /* sem token: proporção da imagem (art.png) */
+  position: absolute;
+  inset: 0;
   overflow: hidden;
 }
 
@@ -440,13 +452,17 @@ html.js .audio-player audio {
 .obra__viewport img {
   width: calc(100% * var(--obra-zoom, 1));
   max-width: none;
-  height: auto;
+  height: calc(100% * var(--obra-zoom, 1));
+  object-fit: contain;
 }
 
 .obra__zoom {
+  /* Os botões são escuros e ficam sobre a pintura: o anel de foco é branco */
+  --focus-ring: var(--color-foreground-inverse);
+
   position: absolute;
   inset-block-end: var(--spacing-2);
-  inset-inline-end: var(--margin-right);
+  inset-inline-end: var(--spacing-2);
   display: flex;
   gap: var(--spacing-1);
 }
@@ -481,7 +497,7 @@ html.js .audio-player audio {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  padding-block: var(--spacing-3xl) var(--spacing-4xl);
+  padding-block: var(--spacing-2xl) var(--spacing-4xl);
 }
 
 .hero__title {
@@ -508,12 +524,6 @@ html.js .audio-player audio {
 
 .hero__content > .audio-player {
   align-self: flex-start;
-}
-
-@media (min-width: 48rem) {
-  .hero__content {
-    padding-block-start: var(--spacing-2xl);
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -907,12 +917,15 @@ html.js .audio-player audio {
   grid-row: 4;
 }
 
+/* Variante Color=light do AudioPlayer: Hero (Variation=b) e Artist */
+.hero .audio-player,
 .artist .audio-player {
   --audio-track: var(--color-opacity-neutral-40);
 
   color: var(--color-foreground-secondary);
 }
 
+.hero .audio-player .icon,
 .artist .audio-player .icon {
   filter: none;
 }
@@ -1135,6 +1148,7 @@ html.js .audio-player audio {
    -------------------------------------------------------------------------- */
 @media (forced-colors: active) {
   .audio-player .icon,
+  .hero .audio-player .icon,
   .artist .audio-player .icon,
   .obra__zoom img {
     filter: brightness(0);
@@ -1166,6 +1180,7 @@ html.js .audio-player audio {
 
 @media (forced-colors: active) and (prefers-color-scheme: dark) {
   .audio-player .icon,
+  .hero .audio-player .icon,
   .artist .audio-player .icon,
   .obra__zoom img {
     filter: brightness(0) invert(1);
