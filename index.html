@@ -13,19 +13,21 @@
   <a class="skip-link" href="#main">Ir para o conteúdo principal</a>
 
   <header class="navbar">
-    <a class="logo" href="#topo" aria-label="Acervo Acessível, início da página">
-      <span class="logo__line">Acervo</span>
-      <span class="logo__line">Acessível</span>
-    </a>
+    <div class="container navbar__inner">
+      <a class="logo" href="#topo" aria-label="Acervo Acessível, início da página">
+        <span class="logo__line">Acervo</span>
+        <span class="logo__line">Acessível</span>
+      </a>
 
-    <nav class="navbar__nav" aria-label="Principal">
-      <ul class="navbar__list">
-        <li><a href="#obra">Obra</a></li>
-        <li><a href="#ficha">Ficha Técnica</a></li>
-        <li><a href="#artista">Artista</a></li>
-        <li><a href="#acessibilidade">Acessibilidade</a></li>
-      </ul>
-    </nav>
+      <nav class="navbar__nav" aria-label="Principal">
+        <ul class="navbar__list">
+          <li><a href="#obra">Obra</a></li>
+          <li><a href="#ficha">Ficha Técnica</a></li>
+          <li><a href="#artista">Artista</a></li>
+          <li><a href="#acessibilidade">Acessibilidade</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
   <main id="main" tabindex="-1">
@@ -52,7 +54,7 @@
         <p class="visually-hidden" id="obra-zoom-status" role="status"></p>
       </div>
 
-      <div class="hero__content">
+      <div class="hero__content container">
         <div class="hero__title">
           <h1 id="hero-titulo" tabindex="-1">Esquisita como eu</h1>
           <p class="hero__subtitle">Laura Castilhos</p>
@@ -109,103 +111,107 @@
     </section>
 
     <section class="ficha" id="ficha" aria-labelledby="ficha-titulo">
-      <h2 id="ficha-titulo" tabindex="-1">Ficha técnica</h2>
+      <div class="container ficha__inner">
+        <h2 id="ficha-titulo" tabindex="-1">Ficha técnica</h2>
 
-      <dl class="list-ficha">
-        <div class="list-item">
-          <dt>Artista</dt>
-          <dd>Laura Castilhos</dd>
-        </div>
-        <div class="list-item">
-          <dt>Título</dt>
-          <dd>Esquisita como eu</dd>
-        </div>
-        <div class="list-item">
-          <dt>Ano</dt>
-          <dd>2004</dd>
-        </div>
-        <div class="list-item">
-          <dt>Técnica</dt>
-          <dd>Pintura acrílica | Colagem</dd>
-        </div>
-        <div class="list-item">
-          <dt>Dimensões (com moldura)</dt>
-          <dd>30,5 cm x 55,5 cm</dd>
-        </div>
-        <div class="list-item">
-          <dt>Local de produção</dt>
-          <dd>Porto Alegre, RS, Brasil</dd>
-        </div>
-      </dl>
+        <dl class="list-ficha">
+          <div class="list-item">
+            <dt>Artista</dt>
+            <dd>Laura Castilhos</dd>
+          </div>
+          <div class="list-item">
+            <dt>Título</dt>
+            <dd>Esquisita como eu</dd>
+          </div>
+          <div class="list-item">
+            <dt>Ano</dt>
+            <dd>2004</dd>
+          </div>
+          <div class="list-item">
+            <dt>Técnica</dt>
+            <dd>Pintura acrílica | Colagem</dd>
+          </div>
+          <div class="list-item">
+            <dt>Dimensões (com moldura)</dt>
+            <dd>30,5 cm x 55,5 cm</dd>
+          </div>
+          <div class="list-item">
+            <dt>Local de produção</dt>
+            <dd>Porto Alegre, RS, Brasil</dd>
+          </div>
+        </dl>
+      </div>
     </section>
 
     <hr class="divider" aria-hidden="true" />
 
     <section class="artist" id="artista" aria-labelledby="artista-titulo">
-      <div class="artist__image">
-        <img
-          src="assets/images/artist.png"
-          width="843"
-          height="791"
-          alt="Foto em preto e branco de Laura Castilhos, uma mulher de cabelo curto e claro, sorrindo, sentada a uma mesa de madeira com os braços cruzados. À frente dela estão três livros ilustrados: A Família Sujo, A Mulher Gigante e O Natal de Natanael. Atrás dela há estantes cheias de livros."
-        />
-      </div>
-
-      <div class="artist__content">
-        <h2 id="artista-titulo" tabindex="-1">Laura Castilhos</h2>
-
-        <div class="artist__description">
-          <p>Laura Castilhos nasceu em Porto Alegre, em 1959. É artista visual e ilustradora. Formou-se em Artes Visuais pela Universidade Federal do Rio Grande do Sul (UFRGS) e estudou gravura na Itália. Também fez doutorado na Espanha. Entre 2003 e 2023, foi professora do Instituto de Artes da UFRGS, onde ensinou desenho, aquarela e ilustração. Ela também pesquisa os livros ilustrados feitos no Brasil.</p>
-
-          <p>Seu trabalho é principalmente voltado para o desenho, a aquarela e a ilustração de livros, especialmente para crianças e jovens. Seu primeiro livro ilustrado foi Poesia fora da estante, publicado em 1995. Durante sua carreira, recebeu vários prêmios, entre eles o Prêmio Açorianos de Melhor Ilustrador, que ganhou em 1998, 1999 e 2001. Ilustrou mais de 40 livros, entre eles Esquisita como eu, A Mulher Gigante e Saco de Brinquedos. Saco de Brinquedos foi finalista do Prêmio Jabuti de ilustração.</p>
+      <div class="container artist__inner">
+        <div class="artist__image">
+          <img
+            src="assets/images/artist.png"
+            width="843"
+            height="791"
+            alt="Foto em preto e branco de Laura Castilhos, uma mulher de cabelo curto e claro, sorrindo, sentada a uma mesa de madeira com os braços cruzados. À frente dela estão três livros ilustrados: A Família Sujo, A Mulher Gigante e O Natal de Natanael. Atrás dela há estantes cheias de livros."
+          />
         </div>
 
-        <div class="audiodescription">
-          <div class="audio-player" role="group" aria-label="Player de áudio: audiodescrição da artista" data-audio-name="audiodescrição da artista">
-            <audio id="audio-artista" preload="metadata" controls>
-              <source src="assets/audio/artist.m4a" type="audio/mp4" />
-              <source src="assets/audio/artist.mp3" type="audio/mpeg" />
-              <p>Seu navegador não reproduz áudio.</p>
-            </audio>
+        <div class="artist__content">
+          <h2 id="artista-titulo" tabindex="-1">Laura Castilhos</h2>
 
-            <div class="audio-player__transport">
-              <button
-                type="button"
-                class="audio-player__play"
-                aria-label="Ouvir audiodescrição da artista"
-                aria-pressed="false"
-                aria-controls="audio-artista"
-              >
-                <img class="icon icon--play" src="assets/icons/play.svg" width="24" height="24" alt="" />
-                <img class="icon icon--pause" src="assets/icons/pause.svg" width="24" height="24" alt="" hidden />
-              </button>
-              <span class="audio-player__time">
-                <time datetime="PT0M0S">0:00</time>
-                <span aria-hidden="true">/</span>
-                <span class="visually-hidden">de</span>
-                <time datetime="PT1M20S">1:20</time>
-              </span>
-            </div>
+          <div class="artist__description">
+            <p>Laura Castilhos nasceu em Porto Alegre, em 1959. É artista visual e ilustradora. Formou-se em Artes Visuais pela Universidade Federal do Rio Grande do Sul (UFRGS) e estudou gravura na Itália. Também fez doutorado na Espanha. Entre 2003 e 2023, foi professora do Instituto de Artes da UFRGS, onde ensinou desenho, aquarela e ilustração. Ela também pesquisa os livros ilustrados feitos no Brasil.</p>
 
-            <progress class="audio-player__progress" value="0" max="100" aria-label="Progresso do áudio">0%</progress>
+            <p>Seu trabalho é principalmente voltado para o desenho, a aquarela e a ilustração de livros, especialmente para crianças e jovens. Seu primeiro livro ilustrado foi Poesia fora da estante, publicado em 1995. Durante sua carreira, recebeu vários prêmios, entre eles o Prêmio Açorianos de Melhor Ilustrador, que ganhou em 1998, 1999 e 2001. Ilustrou mais de 40 livros, entre eles Esquisita como eu, A Mulher Gigante e Saco de Brinquedos. Saco de Brinquedos foi finalista do Prêmio Jabuti de ilustração.</p>
+          </div>
 
-            <div class="audio-player__options">
-              <button
-                type="button"
-                class="audio-player__mute"
-                aria-label="Silenciar áudio"
-                aria-pressed="false"
-                aria-controls="audio-artista"
-              >
-                <img class="icon icon--volume-on" src="assets/icons/volume-on.svg" width="24" height="24" alt="" />
-                <img class="icon icon--volume-off" src="assets/icons/volume-off.svg" width="24" height="24" alt="" hidden />
-              </button>
-              <button
-                type="button"
-                class="audio-player__speed"
-                aria-label="Velocidade de reprodução: 1x"
-                aria-controls="audio-artista"
-              >1x</button>
+          <div class="audiodescription">
+            <div class="audio-player" role="group" aria-label="Player de áudio: audiodescrição da artista" data-audio-name="audiodescrição da artista">
+              <audio id="audio-artista" preload="metadata" controls>
+                <source src="assets/audio/artist.m4a" type="audio/mp4" />
+                <source src="assets/audio/artist.mp3" type="audio/mpeg" />
+                <p>Seu navegador não reproduz áudio.</p>
+              </audio>
+
+              <div class="audio-player__transport">
+                <button
+                  type="button"
+                  class="audio-player__play"
+                  aria-label="Ouvir audiodescrição da artista"
+                  aria-pressed="false"
+                  aria-controls="audio-artista"
+                >
+                  <img class="icon icon--play" src="assets/icons/play.svg" width="24" height="24" alt="" />
+                  <img class="icon icon--pause" src="assets/icons/pause.svg" width="24" height="24" alt="" hidden />
+                </button>
+                <span class="audio-player__time">
+                  <time datetime="PT0M0S">0:00</time>
+                  <span aria-hidden="true">/</span>
+                  <span class="visually-hidden">de</span>
+                  <time datetime="PT1M20S">1:20</time>
+                </span>
+              </div>
+
+              <progress class="audio-player__progress" value="0" max="100" aria-label="Progresso do áudio">0%</progress>
+
+              <div class="audio-player__options">
+                <button
+                  type="button"
+                  class="audio-player__mute"
+                  aria-label="Silenciar áudio"
+                  aria-pressed="false"
+                  aria-controls="audio-artista"
+                >
+                  <img class="icon icon--volume-on" src="assets/icons/volume-on.svg" width="24" height="24" alt="" />
+                  <img class="icon icon--volume-off" src="assets/icons/volume-off.svg" width="24" height="24" alt="" hidden />
+                </button>
+                <button
+                  type="button"
+                  class="audio-player__speed"
+                  aria-label="Velocidade de reprodução: 1x"
+                  aria-controls="audio-artista"
+                >1x</button>
+              </div>
             </div>
           </div>
         </div>
@@ -215,35 +221,37 @@
     <hr class="divider" aria-hidden="true" />
 
     <section class="a11y" id="acessibilidade" aria-labelledby="acessibilidade-titulo">
-      <div class="a11y__title">
-        <h2 id="acessibilidade-titulo" tabindex="-1">Acessibilidade</h2>
-        <p>Entenda alguns recursos de acessibilidade</p>
-      </div>
-
-      <div class="accordion-list">
-        <div class="accordion-item">
-          <h3 class="accordion-item__title">Audiodescrição</h3>
-          <div class="accordion-item__answer" id="acc-audiodescricao">
-            <div class="accordion-item__content">
-              <p>Recurso que transforma elementos visuais em uma descrição falada. A descrição pode apresentar pessoas, objetos, formas, cores, movimentos, expressões e outros detalhes importantes para compreender uma imagem, obra ou ambiente. É especialmente importante para pessoas cegas ou com baixa visão.</p>
-            </div>
-          </div>
+      <div class="container a11y__inner">
+        <div class="a11y__title">
+          <h2 id="acessibilidade-titulo" tabindex="-1">Acessibilidade</h2>
+          <p>Entenda alguns recursos de acessibilidade</p>
         </div>
 
-        <div class="accordion-item">
-          <h3 class="accordion-item__title">Linguagem Simples</h3>
-          <div class="accordion-item__answer" id="acc-linguagem-simples">
-            <div class="accordion-item__content">
-              <p>Forma de comunicar informações de maneira clara, direta e fácil de entender. Para isso, são usadas palavras conhecidas, frases mais curtas e uma organização que ajuda a encontrar e compreender as informações. Pode facilitar o acesso ao conteúdo para pessoas com diferentes níveis de escolaridade, dificuldades de leitura ou compreensão e diferentes formas de aprendizagem.</p>
+        <div class="accordion-list">
+          <div class="accordion-item">
+            <h3 class="accordion-item__title">Audiodescrição</h3>
+            <div class="accordion-item__answer" id="acc-audiodescricao">
+              <div class="accordion-item__content">
+                <p>Recurso que transforma elementos visuais em uma descrição falada. A descrição pode apresentar pessoas, objetos, formas, cores, movimentos, expressões e outros detalhes importantes para compreender uma imagem, obra ou ambiente. É especialmente importante para pessoas cegas ou com baixa visão.</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="accordion-item">
-          <h3 class="accordion-item__title">Comunicação Alternativa</h3>
-          <div class="accordion-item__answer" id="acc-comunicacao-alternativa">
-            <div class="accordion-item__content">
-              <p>Conjunto de recursos que ajuda pessoas que não conseguem se comunicar pela fala, ou que precisam de outras formas de comunicação. Pode envolver imagens, símbolos, gestos, objetos, textos ou dispositivos eletrônicos. Esses recursos permitem expressar ideias, necessidades, sentimentos e escolhas de diferentes maneiras.</p>
+          <div class="accordion-item">
+            <h3 class="accordion-item__title">Linguagem Simples</h3>
+            <div class="accordion-item__answer" id="acc-linguagem-simples">
+              <div class="accordion-item__content">
+                <p>Forma de comunicar informações de maneira clara, direta e fácil de entender. Para isso, são usadas palavras conhecidas, frases mais curtas e uma organização que ajuda a encontrar e compreender as informações. Pode facilitar o acesso ao conteúdo para pessoas com diferentes níveis de escolaridade, dificuldades de leitura ou compreensão e diferentes formas de aprendizagem.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h3 class="accordion-item__title">Comunicação Alternativa</h3>
+            <div class="accordion-item__answer" id="acc-comunicacao-alternativa">
+              <div class="accordion-item__content">
+                <p>Conjunto de recursos que ajuda pessoas que não conseguem se comunicar pela fala, ou que precisam de outras formas de comunicação. Pode envolver imagens, símbolos, gestos, objetos, textos ou dispositivos eletrônicos. Esses recursos permitem expressar ideias, necessidades, sentimentos e escolhas de diferentes maneiras.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -254,26 +262,28 @@
 
   <!-- Footer (trio) -->
   <footer class="footer">
-    <div class="footer__top">
-      <!-- Logo (mesmo componente do cabeçalho; aqui não é link) -->
-      <p class="logo">
-        <span class="logo__line">Acervo</span>
-        <span class="logo__line">Acessível</span>
-      </p>
+    <div class="container footer__inner">
+      <div class="footer__top">
+        <!-- Logo (mesmo componente do cabeçalho; aqui não é link) -->
+        <p class="logo">
+          <span class="logo__line">Acervo</span>
+          <span class="logo__line">Acessível</span>
+        </p>
 
-      <nav class="footer__nav" aria-labelledby="footer-links-titulo">
-        <h2 id="footer-links-titulo">Links úteis</h2>
-        <ul>
-          <li><a href="https://www.ufrgs.br/acervopbsa/" target="_blank" rel="noopener noreferrer">Pinacoteca Barão de Santo Ângelo<span class="visually-hidden"> (abre em nova aba)</span></a></li>
-          <li><a href="https://www.ufrgs.br/comacesso/" target="_blank" rel="noopener noreferrer">Com Acesso | Comunicação Acessível UFRGS<span class="visually-hidden"> (abre em nova aba)</span></a></li>
-          <li><a href="https://github.com/acervo-acessivel/esquisita-como-eu" target="_blank" rel="noopener noreferrer">Acervo Acessível - Projeto no Github<span class="visually-hidden"> (abre em nova aba)</span></a></li>
-        </ul>
-      </nav>
+        <nav class="footer__nav" aria-labelledby="footer-links-titulo">
+          <h2 id="footer-links-titulo">Links úteis</h2>
+          <ul>
+            <li><a href="https://www.ufrgs.br/acervopbsa/" target="_blank" rel="noopener noreferrer">Pinacoteca Barão de Santo Ângelo<span class="visually-hidden"> (abre em nova aba)</span></a></li>
+            <li><a href="https://www.ufrgs.br/comacesso/" target="_blank" rel="noopener noreferrer">Com Acesso | Comunicação Acessível UFRGS<span class="visually-hidden"> (abre em nova aba)</span></a></li>
+            <li><a href="https://github.com/acervo-acessivel/esquisita-como-eu" target="_blank" rel="noopener noreferrer">Acervo Acessível - Projeto no Github<span class="visually-hidden"> (abre em nova aba)</span></a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <hr class="footer__divider" aria-hidden="true" />
+
+      <p class="footer__copyright">© 2026 - PPG Design - UFRGS</p>
     </div>
-
-    <hr class="footer__divider" aria-hidden="true" />
-
-    <p class="footer__copyright">© 2026 - PPG Design - UFRGS</p>
   </footer>
 </body>
 </html>

@@ -4,7 +4,8 @@
    Usa apenas os tokens de css/tokens.css. Mobile-first: Mobile no padrão,
    Tablet em (min-width: 48rem), Desktop em (min-width: 64rem).
 
-   Ordem: base · navbar · hero · a11y · ficha · artist · footer.
+   Ordem: base · container · logo · player · navbar · hero · a11y · ficha ·
+   artist · footer.
 
    Valores que NÃO são token (não há variable no Figma) aparecem literais e
    marcados com "sem token". São só de 4 tipos:
@@ -104,6 +105,17 @@ button {
   border: 0;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Container: limita a largura do conteúdo e mantém as margens laterais do
+   Figma como padding. Os fundos ficam nas seções (header, section, footer),
+   que continuam com 100% da largura. Até 90rem (1440px) não muda nada: o
+   max-width só passa a valer acima disso. */
+.container {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--margin-left) var(--margin-right);
 }
 
 /* Foco visível. A cor troca em fundos escuros (navbar, hero, footer) */
@@ -340,12 +352,17 @@ html.js .audio-player audio {
 
   display: flex;
   align-items: center;
-  justify-content: center;
   min-height: var(--size-nav-height); /* mínimo: cresce se o texto for ampliado */
   padding: var(--spacing-2) 0 var(--spacing-2_5);
   border-bottom: 1px solid var(--color-border-strong); /* sem token: 1px */
   background: var(--color-background-inverse);
   color: var(--color-foreground-inverse);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .navbar__nav {
@@ -374,11 +391,14 @@ html.js .audio-player audio {
 
 @media (min-width: 48rem) {
   .navbar {
+    /* 8 em cima e 8 + 2 embaixo mantêm o centro do desenho (0 e 2) */
+    padding: var(--spacing-1) 0 calc(var(--spacing-1) + var(--spacing-4xs));
+  }
+
+  .navbar__inner {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--spacing-1) var(--spacing-4xl);
-    /* 8 em cima e 8 + 2 embaixo mantêm o centro do desenho (0 e 2) */
-    padding: var(--spacing-1) var(--margin-left) calc(var(--spacing-1) + var(--spacing-4xs));
   }
 
   .navbar__nav {
@@ -468,7 +488,6 @@ html.js .audio-player audio {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2); /* Figma: 16 (não vinculado) */
-  padding-inline: var(--margin-left);
 }
 
 .hero__title h1 {
@@ -489,8 +508,6 @@ html.js .audio-player audio {
 
 .hero__content > .audio-player {
   align-self: flex-start;
-  max-width: calc(100% - var(--margin-left) - var(--margin-right));
-  margin-inline: var(--margin-left);
 }
 
 @media (min-width: 48rem) {
@@ -503,10 +520,13 @@ html.js .audio-player audio {
    A11y + AccordionList + AccordionItem
    -------------------------------------------------------------------------- */
 .a11y {
+  padding-block: var(--margin-top) var(--margin-bottom);
+}
+
+.a11y__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: var(--spacing-5); /* Figma: 40 (não vinculado) */
-  padding: var(--margin-top) var(--margin-left) var(--margin-bottom);
 }
 
 .a11y__title {
@@ -605,6 +625,9 @@ html.js .audio-player audio {
 }
 
 .accordion-item__content p {
+  /* content-box: os 65ch valem para o texto, sem contar o padding */
+  box-sizing: content-box;
+  max-width: 65ch;
   padding: 0 var(--spacing-8) calc(var(--accordion-pad) - 1px) 0;
 }
 
@@ -654,10 +677,13 @@ html.js .audio-player audio {
 
 @media (min-width: 48rem) {
   .a11y {
+    padding-block-end: var(--margin-top);
+  }
+
+  .a11y__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     align-items: start;
     column-gap: var(--spacing-5); /* Figma: 40 */
-    padding-block-end: var(--margin-top);
   }
 
   .a11y__title {
@@ -684,7 +710,7 @@ html.js .audio-player audio {
 }
 
 @media (min-width: 64rem) {
-  .a11y {
+  .a11y__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--spacing-2_5); /* Figma: 20 */
   }
@@ -712,11 +738,14 @@ html.js .audio-player audio {
    Ficha + ListFicha + ListItem
    -------------------------------------------------------------------------- */
 .ficha {
+  /* Mobile: o padding de baixo usa margin/top (decisão de design) */
+  padding-block: var(--margin-top);
+}
+
+.ficha__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: var(--spacing-3); /* Figma: 24 (não vinculado) */
-  /* Mobile: o padding de baixo usa margin/top (decisão de design) */
-  padding: var(--margin-top) var(--margin-left);
 }
 
 .list-ficha {
@@ -756,10 +785,13 @@ html.js .audio-player audio {
 
 @media (min-width: 48rem) {
   .ficha {
+    padding-block-end: var(--margin-bottom);
+  }
+
+  .ficha__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     align-items: start;
     column-gap: var(--spacing-5); /* Figma: 40 */
-    padding-block-end: var(--margin-bottom);
   }
 
   .ficha h2 {
@@ -781,7 +813,7 @@ html.js .audio-player audio {
 }
 
 @media (min-width: 64rem) {
-  .ficha {
+  .ficha__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--spacing-2_5); /* Figma: 20 */
   }
@@ -807,8 +839,10 @@ html.js .audio-player audio {
 .divider::before {
   content: "";
   display: block;
+  /* Acima de 1440px a linha para na largura do container (mesmas margens) */
+  max-width: calc(var(--layout-max-width) - var(--margin-left) - var(--margin-right));
   height: 1px; /* sem token */
-  margin-block-start: var(--spacing-2);
+  margin: var(--spacing-2) auto 0;
   border-radius: 99px; /* sem token: pill */
   background: var(--color-border-subtle);
 }
@@ -819,10 +853,13 @@ html.js .audio-player audio {
    do título; grid-row reordena só no visual.
    -------------------------------------------------------------------------- */
 .artist {
+  padding-block: var(--margin-top);
+}
+
+.artist__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: var(--spacing-3); /* Figma: 24 */
-  padding: var(--margin-top) var(--margin-left);
 }
 
 .artist__content {
@@ -858,6 +895,11 @@ html.js .audio-player audio {
   line-height: 1.4; /* sem token */
 }
 
+/* Texto corrido: no máximo 65 caracteres por linha */
+.artist__description p {
+  max-width: 65ch;
+}
+
 .audiodescription {
   display: flex;
   align-items: center;
@@ -876,10 +918,9 @@ html.js .audio-player audio {
 }
 
 @media (min-width: 48rem) {
-  .artist {
+  .artist__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     column-gap: var(--spacing-5); /* Figma: 40 */
-    padding-block: var(--margin-top);
   }
 
   .artist__image {
@@ -902,7 +943,7 @@ html.js .audio-player audio {
 }
 
 @media (min-width: 64rem) {
-  .artist {
+  .artist__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: var(--spacing-2_5); /* Figma: 20 */
   }
@@ -922,13 +963,16 @@ html.js .audio-player audio {
 .footer {
   --focus-ring: var(--color-foreground-inverse);
 
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  row-gap: var(--spacing-3); /* Figma: 24 */
-  padding: var(--spacing-5) var(--margin-left) var(--spacing-7);
+  padding-block: var(--spacing-5) var(--spacing-7);
   border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
   background: var(--color-background-inverse);
   color: var(--color-foreground-inverse);
+}
+
+.footer__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 */
 }
 
 .footer__top {
@@ -987,7 +1031,7 @@ html.js .audio-player audio {
 }
 
 @media (min-width: 48rem) {
-  .footer {
+  .footer__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     column-gap: var(--spacing-5); /* Figma: 40 */
   }
@@ -1021,11 +1065,14 @@ html.js .audio-player audio {
 
 @media (min-width: 64rem) {
   .footer {
+    padding-block: 7rem; /* sem token: 112 (decisão de design em aberto) */
+  }
+
+  .footer__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: auto var(--spacing-0_5) auto; /* Figma: linha do divisor com 4 */
     column-gap: var(--spacing-2_5); /* Figma: 20 */
     row-gap: var(--spacing-6); /* Figma: 48 */
-    padding-block: 7rem; /* sem token: 112 (decisão de design em aberto) */
   }
 
   .footer .logo__line:first-child {

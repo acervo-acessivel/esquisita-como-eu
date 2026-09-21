@@ -173,6 +173,15 @@
 }
 
 /* --------------------------------------------------------------------------
+   Layout (não vem de variable do Figma)
+   Largura máxima do conteúdo (.container). É igual ao size/width do Desktop
+   (1440px), mas fixa: não muda por breakpoint nem acompanha o modo.
+   -------------------------------------------------------------------------- */
+:root {
+  --layout-max-width: 90rem;
+}
+
+/* --------------------------------------------------------------------------
    Tema (collection theme)
    Light é o padrão. Aplique .theme-dark no wrapper das seções em Dark
    (o Footer, por exemplo, está em Dark no Figma).
