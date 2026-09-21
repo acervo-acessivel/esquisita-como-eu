@@ -1,2 +1,24 @@
-CLAUDE.md
-auditoria-tokens.md
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Claude Code (configurações locais)
+.claude/settings.local.json
+
+# Ambiente e segredos
+.env
+.env.*
+
+# Node, caso use alguma ferramenta de lint ou servidor local
+node_modules/
+npm-debug.log*
+
+# Temporários
+*.log
+*.tmp
