@@ -482,9 +482,21 @@
 
       var label = document.createElement('span');
       label.textContent = title.textContent.trim();
-      var icon = document.createElement('span');
-      icon.className = 'accordion-item__icon';
+      // Ícone + / −: SVG de 1em, com linhas em em (o CSS define traço e cor)
+      var NS = 'http://www.w3.org/2000/svg';
+      var icon = document.createElementNS(NS, 'svg');
+      icon.setAttribute('class', 'accordion-item__icon');
       icon.setAttribute('aria-hidden', 'true');
+      icon.setAttribute('focusable', 'false');
+      ['accordion-item__icon-h', 'accordion-item__icon-v'].forEach(function (name) {
+        var line = document.createElementNS(NS, 'line');
+        line.setAttribute('class', name);
+        line.setAttribute('x1', '0.15625em');
+        line.setAttribute('x2', '0.84375em');
+        line.setAttribute('y1', '0.5em');
+        line.setAttribute('y2', '0.5em');
+        icon.appendChild(line);
+      });
 
       var button = document.createElement('button');
       button.type = 'button';
