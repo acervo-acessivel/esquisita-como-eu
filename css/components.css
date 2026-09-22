@@ -1122,6 +1122,10 @@ html.is-modal-open {
   row-gap: var(--spacing-3); /* Figma: 24 (não vinculado) */
 }
 
+.ficha__content {
+  display: contents; /* Mobile: lista e player empilham na única coluna, na ordem do DOM */
+}
+
 .list-ficha {
   display: flex;
   flex-direction: column;
@@ -1172,7 +1176,10 @@ html.is-modal-open {
     grid-column: 1 / span 4;
   }
 
-  .list-ficha {
+  .ficha__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3); /* mesmo respiro do row-gap do .ficha__inner no Mobile */
     grid-column: 5 / span 4;
   }
 
@@ -1196,7 +1203,7 @@ html.is-modal-open {
     grid-column: 1 / span 5;
   }
 
-  .list-ficha {
+  .ficha__content {
     grid-column: 7 / span 6;
   }
 }

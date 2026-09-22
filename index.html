@@ -57,10 +57,10 @@
           <p class="hero__subtitle">Laura Castilhos</p>
         </div>
 
-        <div class="audio-player" role="group" aria-label="Player de áudio: audiodescrição da obra" data-audio-name="audiodescrição da obra">
-          <audio id="audio-obra" preload="metadata" controls>
-            <source src="assets/audio/artwork.m4a" type="audio/mp4" />
-            <source src="assets/audio/artwork.mp3" type="audio/mpeg" />
+        <div class="audio-player" role="group" aria-label="Player de áudio: introdução" data-audio-name="introdução">
+          <audio id="audio-intro" preload="metadata" controls>
+            <source src="assets/audio/intro.m4a" type="audio/mp4" />
+            <source src="assets/audio/intro.mp3" type="audio/mpeg" />
             <p>Seu navegador não reproduz áudio.</p>
           </audio>
         </div>
@@ -75,32 +75,42 @@
           <h2 id="ficha-titulo" tabindex="-1">Ficha técnica</h2>
         </div>
 
-        <dl class="list-ficha">
-          <div class="list-item">
-            <dt>Artista</dt>
-            <dd>Laura Castilhos</dd>
+        <div class="ficha__content">
+          <dl class="list-ficha">
+            <div class="list-item">
+              <dt>Artista</dt>
+              <dd>Laura Castilhos</dd>
+            </div>
+            <div class="list-item">
+              <dt>Título</dt>
+              <dd>Esquisita como eu</dd>
+            </div>
+            <div class="list-item">
+              <dt>Ano</dt>
+              <dd>2004</dd>
+            </div>
+            <div class="list-item">
+              <dt>Técnica</dt>
+              <dd>Pintura acrílica | Colagem</dd>
+            </div>
+            <div class="list-item">
+              <dt>Dimensões (com moldura)</dt>
+              <dd>30,5 cm x 55,5 cm</dd>
+            </div>
+            <div class="list-item">
+              <dt>Local de produção</dt>
+              <dd>Porto Alegre, RS, Brasil</dd>
+            </div>
+          </dl>
+
+          <div class="audio-player" role="group" aria-label="Player de áudio: audiodescrição da obra" data-audio-name="audiodescrição da obra">
+            <audio id="audio-obra" preload="metadata" controls>
+              <source src="assets/audio/artwork.m4a" type="audio/mp4" />
+              <source src="assets/audio/artwork.mp3" type="audio/mpeg" />
+              <p>Seu navegador não reproduz áudio.</p>
+            </audio>
           </div>
-          <div class="list-item">
-            <dt>Título</dt>
-            <dd>Esquisita como eu</dd>
-          </div>
-          <div class="list-item">
-            <dt>Ano</dt>
-            <dd>2004</dd>
-          </div>
-          <div class="list-item">
-            <dt>Técnica</dt>
-            <dd>Pintura acrílica | Colagem</dd>
-          </div>
-          <div class="list-item">
-            <dt>Dimensões (com moldura)</dt>
-            <dd>30,5 cm x 55,5 cm</dd>
-          </div>
-          <div class="list-item">
-            <dt>Local de produção</dt>
-            <dd>Porto Alegre, RS, Brasil</dd>
-          </div>
-        </dl>
+        </div>
       </div>
     </section>
 
