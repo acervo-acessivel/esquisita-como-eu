@@ -214,6 +214,9 @@
   --player-icon-color:       #000000;
   --player-hover-bg:         rgba(32, 33, 36, 0.06);
   --player-target-size:      2.75rem;                  /* 44px: área de toque (acessibilidade, não vem do Chrome) */
+  --player-speed-min-width:  1.75rem;                  /* 28px: botão de velocidade, mais justo que os 32px dos outros */
+  --player-speed-padding-inline: 0.375rem;             /* 6px (era 8px) */
+  --player-speed-gap:        0.25rem;                  /* 4px entre o mudo e a velocidade (era 12px) */
   --player-focus-ring:       #1a1a1a;                  /* anel de foco (acessibilidade, não vem do Chrome) */
 
   /* Barra de progresso e volume */
@@ -280,6 +283,15 @@
   --color-opacity-default-40:    color-mix(in srgb, var(--color-white) 40%, transparent);
   --color-opacity-neutral-20:    color-mix(in srgb, var(--color-black) 20%, transparent);
   --color-opacity-neutral-40:    color-mix(in srgb, var(--color-black) 40%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Overlay do modal da obra
+   Não vem do Figma (pedido no ajuste 4.3): o preto do projeto com 90% de
+   opacidade. Usado no próprio <dialog>.
+   -------------------------------------------------------------------------- */
+:root {
+  --overlay-bg: color-mix(in srgb, var(--color-black) 90%, transparent);
 }
 
 /* Sem override em Dark (iguais ao Light): --color-background-inverse, --color-foreground-inverse, --color-opacity-default-20, --color-opacity-default-40 */

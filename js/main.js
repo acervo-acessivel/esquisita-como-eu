@@ -6,7 +6,7 @@
    tem o player nativo. Ao carregar, este script marca <html class="js"> e o
    CSS troca esses fallbacks pelos controles do desenho.
 
-   1. Navegação por âncoras   2. Player de áudio   3. Acordeão   4. Zoom
+   1. Navegação por âncoras   2. Player de áudio   3. Acordeão   4. Modal da obra
    A rolagem suave e as transições ficam no CSS, dentro de
    prefers-reduced-motion. Nada aqui anima.
    ========================================================================== */
@@ -123,7 +123,7 @@
     volumeOff: 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z',
     check: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'
   };
-  var RATES = [0.5, 0.75, 1, 1.25, 1.5];
+  var RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
   var SEEK_STEP = 5; // segundos por seta
   var players = [];
   var currentRate = 1;
@@ -511,45 +511,156 @@
   }
 
   /* ------------------------------------------------------------------------
-     4. Zoom da obra
-     Limites de 100% a 300%, de 50% em 50%. Com zoom > 100% o viewport rola
-     e recebe foco, então as setas do teclado movem a imagem.
+     4. Modal da obra
+     No Hero, o link "Ampliar imagem da obra" (que sem JS abre a imagem em
+     nova aba) vira um botão que abre um <dialog> nativo (showModal). O dialog
+     é montado na primeira abertura, então a imagem grande só carrega aí.
+     Zoom de 1x a 4x, de 0,5 em 0,5. Com zoom > 1x o stage rola: mouse
+     arrasta, setas movem, toque usa a rolagem e a pinça nativas.
      ---------------------------------------------------------------------- */
-  function initZoom() {
-    var viewport = document.getElementById('obra-viewport');
-    var controls = document.querySelector('.obra__zoom');
-    var status = document.getElementById('obra-zoom-status');
-    if (!viewport || !controls) return;
+  function initModal() {
+    var link = document.querySelector('.obra__expand');
+    var heroImg = document.querySelector('.obra__img');
+    if (!link || !heroImg || typeof HTMLDialogElement === 'undefined') return;
 
-    var zoomIn = controls.querySelector('.obra__zoom-in');
-    var zoomOut = controls.querySelector('.obra__zoom-out');
     var MIN = 1;
-    var MAX = 3;
+    var MAX = 4;
     var STEP = 0.5;
+    var ARROW_STEP = 48; // px por seta
+    var TITLE = 'Esquisita Como Eu, de Laura Castilhos';
     var zoom = MIN;
+    var dialog, stage, zoomIn, zoomOut, status;
 
-    function apply(next) {
-      // mantém o centro da imagem no centro do viewport
-      var cx = (viewport.scrollLeft + viewport.clientWidth / 2) / viewport.scrollWidth;
-      var cy = (viewport.scrollTop + viewport.clientHeight / 2) / viewport.scrollHeight;
+    // Sem JS é um link; com JS, um botão
+    var opener = document.createElement('button');
+    opener.type = 'button';
+    opener.className = link.className;
+    opener.setAttribute('aria-label', 'Ampliar imagem da obra');
+    opener.setAttribute('aria-haspopup', 'dialog');
+    opener.innerHTML = link.innerHTML;
+    link.parentNode.replaceChild(opener, link);
+
+    function icon(name) {
+      return '<img src="assets/icons/' + name + '.svg" width="24" height="24" alt="">';
+    }
+
+    function build() {
+      dialog = document.createElement('dialog');
+      dialog.className = 'obra-modal';
+      dialog.setAttribute('aria-labelledby', 'obra-modal-titulo');
+      dialog.innerHTML =
+        '<h2 class="visually-hidden" id="obra-modal-titulo"></h2>' +
+        '<div class="obra-modal__stage" id="obra-modal-stage"><img draggable="false"></div>' +
+        '<button type="button" class="obra-modal__btn obra-modal__close" aria-label="Fechar imagem ampliada">' + icon('close') + '</button>' +
+        '<div class="obra-modal__zoom" role="group" aria-label="Zoom da imagem">' +
+          '<button type="button" class="obra-modal__btn obra-modal__zoom-out" aria-label="Diminuir zoom da imagem" aria-controls="obra-modal-stage" disabled>' + icon('zoom-out') + '</button>' +
+          '<button type="button" class="obra-modal__btn obra-modal__zoom-in" aria-label="Aumentar zoom da imagem" aria-controls="obra-modal-stage">' + icon('zoom-in') + '</button>' +
+        '</div>' +
+        '<p class="visually-hidden" role="status"></p>';
+      dialog.querySelector('h2').textContent = TITLE;
+
+      stage = dialog.querySelector('.obra-modal__stage');
+      var img = stage.querySelector('img');
+      img.src = link.getAttribute('href'); // a imagem maior disponível
+      img.alt = heroImg.getAttribute('alt'); // o mesmo alt do Hero
+      zoomIn = dialog.querySelector('.obra-modal__zoom-in');
+      zoomOut = dialog.querySelector('.obra-modal__zoom-out');
+      status = dialog.querySelector('[role="status"]');
+
+      dialog.querySelector('.obra-modal__close').addEventListener('click', function () { dialog.close(); });
+      zoomIn.addEventListener('click', function () { setZoom(Math.min(MAX, zoom + STEP), true); });
+      zoomOut.addEventListener('click', function () { setZoom(Math.max(MIN, zoom - STEP), true); });
+
+      // Clique no fundo (a área escura fora da obra): só se o clique começou e
+      // terminou fora da obra, sem arrastar. O stage cobre o dialog inteiro, e a
+      // <img> cobre o stage, então a área da obra é calculada (object-fit: contain).
+      function outsideArt(e) {
+        var box = img.getBoundingClientRect();
+        var scale = img.naturalWidth ? Math.min(box.width / img.naturalWidth, box.height / img.naturalHeight) : 1;
+        var w = img.naturalWidth * scale;
+        var h = img.naturalHeight * scale;
+        var left = box.left + (box.width - w) / 2;
+        var top = box.top + (box.height - h) / 2;
+        return e.clientX < left || e.clientX > left + w || e.clientY < top || e.clientY > top + h;
+      }
+      function isBackground(e) {
+        return (e.target === dialog || e.target === stage || e.target === img) && outsideArt(e);
+      }
+      var press = null;
+      dialog.addEventListener('pointerdown', function (e) {
+        press = isBackground(e) ? { x: e.clientX, y: e.clientY, moved: false } : null;
+      });
+      dialog.addEventListener('pointermove', function (e) {
+        if (press && Math.abs(e.clientX - press.x) + Math.abs(e.clientY - press.y) > 4) press.moved = true;
+      });
+      dialog.addEventListener('click', function (e) {
+        var close = press && !press.moved && isBackground(e);
+        press = null;
+        if (close) dialog.close();
+      });
+
+      // Setas movem a imagem com zoom, onde quer que esteja o foco no modal
+      dialog.addEventListener('keydown', function (e) {
+        if (zoom <= MIN || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+        var dx = 0;
+        var dy = 0;
+        if (e.key === 'ArrowLeft') dx = -ARROW_STEP;
+        else if (e.key === 'ArrowRight') dx = ARROW_STEP;
+        else if (e.key === 'ArrowUp') dy = -ARROW_STEP;
+        else if (e.key === 'ArrowDown') dy = ARROW_STEP;
+        else return;
+        e.preventDefault();
+        stage.scrollBy(dx, dy);
+      });
+
+      // Arrastar com mouse ou caneta. Toque não passa por aqui: rola e faz
+      // pinça pelo navegador.
+      var drag = null;
+      stage.addEventListener('pointerdown', function (e) {
+        if (zoom <= MIN || e.pointerType === 'touch' || e.button !== 0) return;
+        drag = { x: e.clientX, y: e.clientY, left: stage.scrollLeft, top: stage.scrollTop };
+        stage.setPointerCapture(e.pointerId);
+        stage.setAttribute('data-dragging', '');
+        e.preventDefault();
+      });
+      stage.addEventListener('pointermove', function (e) {
+        if (!drag) return;
+        stage.scrollLeft = drag.left - (e.clientX - drag.x);
+        stage.scrollTop = drag.top - (e.clientY - drag.y);
+      });
+      function endDrag() {
+        drag = null;
+        stage.removeAttribute('data-dragging');
+      }
+      stage.addEventListener('pointerup', endDrag);
+      stage.addEventListener('pointercancel', endDrag);
+
+      dialog.addEventListener('close', onClose);
+      document.body.appendChild(dialog);
+    }
+
+    function setZoom(next, announce) {
+      // mantém o centro da imagem no centro da janela
+      var cx = (stage.scrollLeft + stage.clientWidth / 2) / stage.scrollWidth;
+      var cy = (stage.scrollTop + stage.clientHeight / 2) / stage.scrollHeight;
 
       zoom = next;
-      viewport.style.setProperty('--obra-zoom', zoom);
+      dialog.style.setProperty('--obra-zoom', zoom);
 
       if (zoom > MIN) {
-        viewport.setAttribute('data-zoomed', '');
-        viewport.tabIndex = 0;
-        viewport.setAttribute('role', 'region');
-        viewport.setAttribute('aria-label', 'Obra ampliada. Use as setas do teclado para mover a imagem.');
-        viewport.scrollLeft = cx * viewport.scrollWidth - viewport.clientWidth / 2;
-        viewport.scrollTop = cy * viewport.scrollHeight - viewport.clientHeight / 2;
+        stage.setAttribute('data-zoomed', '');
+        stage.tabIndex = 0;
+        stage.setAttribute('role', 'region');
+        stage.setAttribute('aria-label', 'Imagem ampliada. Use as setas do teclado para mover a imagem.');
+        stage.scrollLeft = cx * stage.scrollWidth - stage.clientWidth / 2;
+        stage.scrollTop = cy * stage.scrollHeight - stage.clientHeight / 2;
       } else {
-        viewport.removeAttribute('data-zoomed');
-        viewport.removeAttribute('tabindex');
-        viewport.removeAttribute('role');
-        viewport.removeAttribute('aria-label');
-        viewport.scrollLeft = 0;
-        viewport.scrollTop = 0;
+        stage.removeAttribute('data-zoomed');
+        stage.removeAttribute('tabindex');
+        stage.removeAttribute('role');
+        stage.removeAttribute('aria-label');
+        stage.scrollLeft = 0;
+        stage.scrollTop = 0;
       }
 
       var focused = document.activeElement;
@@ -558,33 +669,49 @@
       // um botão desabilitado perde o foco: passa para o oposto
       if (focused === zoomIn && zoomIn.disabled) zoomOut.focus();
       if (focused === zoomOut && zoomOut.disabled) zoomIn.focus();
+
+      if (announce) {
+        var text = 'Zoom da imagem: ' + Math.round(zoom * 100) + '%.';
+        if (zoom >= MAX) text += ' Zoom máximo.';
+        if (zoom <= MIN) text += ' Zoom mínimo.';
+        status.textContent = text;
+      }
     }
 
-    function announce() {
-      if (!status) return;
-      var text = 'Zoom da obra: ' + Math.round(zoom * 100) + '%.';
-      if (zoom >= MAX) text += ' Zoom máximo.';
-      if (zoom <= MIN) text += ' Zoom mínimo.';
-      status.textContent = text;
+    // Trava a rolagem da página, compensando a barra de rolagem que some
+    function lockScroll() {
+      var html = document.documentElement;
+      var bar = window.innerWidth - html.clientWidth;
+      if (bar > 0) html.style.paddingInlineEnd = bar + 'px';
+      html.classList.add('is-modal-open');
     }
 
-    zoomIn.addEventListener('click', function () {
-      apply(Math.min(MAX, zoom + STEP));
-      announce();
-    });
-    zoomOut.addEventListener('click', function () {
-      apply(Math.max(MIN, zoom - STEP));
-      announce();
-    });
+    function unlockScroll() {
+      var html = document.documentElement;
+      html.classList.remove('is-modal-open');
+      html.style.removeProperty('padding-inline-end');
+    }
 
-    controls.hidden = false;
+    // Fechou (Esc, botão ou fundo): zoom volta a 1x, rolagem volta, foco volta
+    function onClose() {
+      setZoom(MIN, false);
+      status.textContent = '';
+      unlockScroll();
+      opener.focus();
+    }
+
+    opener.addEventListener('click', function () {
+      if (!dialog) build();
+      lockScroll();
+      dialog.showModal();
+    });
   }
 
   function init() {
     initNav();
     initAudio();
     initAccordion();
-    initZoom();
+    initModal();
   }
 
   if (document.readyState === 'loading') {

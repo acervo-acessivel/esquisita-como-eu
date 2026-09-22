@@ -423,24 +423,37 @@ html.js .audio-player audio {
 }
 
 /* Velocidade */
+/* Mudo e velocidade formam um grupo: o espaço entre eles (--player-speed-gap)
+   e o padding do botão de velocidade são pequenos. As duas áreas de toque
+   continuam com 44px e não se sobrepõem: a do mudo cresce para o lado do
+   volume e a da velocidade para o lado da borda do player (dentro do padding
+   de 18px da pílula), em vez de crescer em volta do botão. */
 .player__speed {
   position: relative;
   flex: none;
-  /* 12px: cada área de toque avança 6px sobre o espaço, e as duas (mudo e
-     velocidade) ficam de 44px sem se sobrepor */
-  margin-inline-start: calc(var(--player-target-size) - var(--player-button-size));
+  margin-inline-start: var(--player-speed-gap);
 }
 
 .player__speed-btn {
   position: relative;
   display: grid;
   place-items: center;
-  min-width: var(--player-button-size);
+  min-width: var(--player-speed-min-width);
   height: var(--player-button-size);
-  padding: 0 0.5rem; /* sem token */
+  padding: 0 var(--player-speed-padding-inline);
   border-radius: calc(var(--player-button-size) / 2);
   color: inherit;
   white-space: nowrap;
+}
+
+.player__mute::after {
+  /* começa (target − botão − gap) antes do botão e termina no gap */
+  inset-inline: calc((var(--player-target-size) - var(--player-button-size) - var(--player-speed-gap)) * -1) calc(var(--player-speed-gap) * -1);
+}
+
+.player__speed-btn::after {
+  /* começa na borda do botão e vai até 44px de largura (ou a largura do texto) */
+  inset-inline: 0 min(0px, calc(100% - var(--player-target-size)));
 }
 
 .player__menu {
@@ -612,7 +625,8 @@ html.js .audio-player audio {
 
 /* Quadro da obra. A proporção é a da imagem com moldura (1600 × 871, a mesma
    do quadro do Figma) e a altura nunca passa de 80% da janela. Se passar, a
-   proporção reduz a largura também e o quadro fica centralizado. */
+   proporção reduz a largura também e o quadro fica centralizado. A imagem
+   ocupa o quadro com object-fit: contain, então nunca é cortada. */
 .obra {
   position: relative;
   aspect-ratio: 1600 / 871; /* sem token: proporção da imagem com moldura */
@@ -620,61 +634,191 @@ html.js .audio-player audio {
   margin-inline: auto;
 }
 
-/* Viewport do zoom: ocupa o quadro. A imagem ocupa o viewport inteiro com
-   object-fit: contain, então nunca é cortada. Com zoom > 1 vira área rolável
-   e o teclado passa a mover a imagem (tabindex via JS). */
-.obra__viewport {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.obra__viewport[data-zoomed] {
-  overflow: auto;
-}
-
-.obra__viewport img {
-  width: calc(100% * var(--obra-zoom, 1));
-  max-width: none;
-  height: calc(100% * var(--obra-zoom, 1));
+.obra__img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
-.obra__zoom {
-  /* Os botões são escuros e ficam sobre a pintura: o anel de foco é branco */
+/* Botões redondos escuros sobre a imagem: "Ampliar imagem" no Hero e os
+   controles do modal. O anel de foco é branco, com um halo escuro. */
+.obra__expand {
   --focus-ring: var(--color-foreground-inverse);
 
-  position: absolute;
-  inset-block-end: var(--spacing-2);
-  inset-inline-end: var(--spacing-2);
-  display: flex;
-  gap: var(--spacing-1);
-}
-
-.obra__zoom button {
   display: grid;
   place-items: center;
   width: var(--target-min);
   height: var(--target-min);
+  padding: 0;
   border: 1px solid var(--color-border-inverse); /* sem token: 1px */
   border-radius: 99px; /* sem token: pill */
   background: var(--color-background-inverse);
+  cursor: pointer;
 }
 
-.obra__zoom img {
+.obra__expand img {
   width: var(--spacing-3);
   height: var(--spacing-3);
   filter: brightness(0) invert(1); /* SVG vem em gray/800; aqui é branco (foreground/inverse) */
 }
 
-.obra__zoom button:focus-visible {
+.obra__expand:focus-visible {
   outline-offset: 0;
   box-shadow: 0 0 0 calc(var(--spacing-4xs) * 2) var(--color-background-inverse);
 }
 
-.obra__zoom button:disabled {
+.obra__expand {
+  position: absolute;
+  inset-block-end: var(--spacing-2);
+  inset-inline-end: var(--spacing-2);
+}
+
+/* --------------------------------------------------------------------------
+   Modal da obra (<dialog>, montado por js/main.js ao abrir pela primeira vez)
+   Tela cheia em todos os tamanhos, aberto com showModal() (top layer: nada da
+   página, nem a navbar, fica por cima). Fundo --overlay-bg (preto do projeto
+   a 90%). A imagem fica centralizada com object-fit: contain e respiro em
+   volta (16, 32 e 48px). Com zoom, o stage rola (mouse: arrastar; teclado:
+   setas; toque: rolagem e pinça nativas).
+   -------------------------------------------------------------------------- */
+.obra-modal {
+  --obra-zoom: 1;
+  --obra-modal-gap: var(--spacing-2); /* 16px; 32px no Tablet e 48px no Desktop */
+  --obra-modal-inset: var(--spacing-2); /* distância dos botões às bordas */
+
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100vw; /* sem token */
+  width: 100dvw;
+  max-width: none;
+  height: 100vh; /* sem token */
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--overlay-bg, var(--color-background-inverse));
+  color: var(--color-foreground-inverse);
+}
+
+.obra-modal::backdrop {
+  background: none; /* o fundo é do próprio dialog */
+}
+
+.obra-modal:not([open]) {
+  display: none;
+}
+
+/* Sem zoom, a obra fica fora das faixas dos botões: em cima e embaixo o
+   respiro é no mínimo botão + margem + respiro do botão à imagem */
+.obra-modal__stage {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding-block: max(var(--obra-modal-gap), calc(var(--target-min) + var(--obra-modal-inset) * 2));
+  padding-inline: var(--obra-modal-gap);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y pinch-zoom; /* a pinça é do navegador */
+}
+
+.obra-modal__stage[data-zoomed] {
+  overflow: auto;
+  cursor: grab;
+}
+
+.obra-modal__stage[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.obra-modal__stage img {
+  display: block;
+  width: calc(100% * var(--obra-zoom));
+  max-width: none;
+  height: calc(100% * var(--obra-zoom));
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Botões claros sobre o fundo escuro: círculo branco com o ícone gray/800.
+   Borda do botão contra o fundo ≥ 3:1 (1.4.11), também desabilitado */
+.obra-modal__btn {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: grid;
+  place-items: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  padding: 0;
+  border: 0;
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-foreground-inverse);
+  cursor: pointer;
+}
+
+.obra-modal__btn img {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+}
+
+/* O anel branco fica separado do botão (branco) por um halo escuro */
+.obra-modal__btn:focus-visible {
+  box-shadow: 0 0 0 var(--spacing-4xs) var(--color-background-inverse);
+}
+
+.obra-modal__btn:disabled {
   opacity: 0.4; /* sem token: estado desabilitado */
   cursor: not-allowed;
+}
+
+.obra-modal__close {
+  position: absolute;
+  inset-block-start: max(var(--obra-modal-inset), env(safe-area-inset-top));
+  inset-inline-end: max(var(--obra-modal-inset), env(safe-area-inset-right));
+}
+
+.obra-modal__zoom {
+  position: absolute;
+  inset-block-end: max(var(--obra-modal-inset), env(safe-area-inset-bottom));
+  inset-inline-end: max(var(--obra-modal-inset), env(safe-area-inset-right));
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+/* Rolagem da página travada enquanto o modal está aberto (o js/main.js
+   compensa a largura da barra de rolagem com padding no <html>) */
+html.is-modal-open {
+  overflow: hidden;
+}
+
+@media (min-width: 48rem) {
+  .obra-modal {
+    --obra-modal-gap: var(--spacing-4); /* 32px */
+  }
+}
+
+@media (min-width: 64rem) {
+  .obra-modal {
+    --obra-modal-gap: var(--spacing-6); /* 48px */
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .obra-modal[open] {
+    animation: obra-modal-in var(--motion-duration) var(--motion-ease);
+  }
+}
+
+@keyframes obra-modal-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .hero__content {
@@ -1196,18 +1340,24 @@ html.js .audio-player audio {
 .footer__nav ul {
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
-/* Figma: espaço entre itens 0 (Mobile), 16 (Tablet), 12 (Desktop) com texto
-   de ~14px. Aqui cada link tem 44px de altura e o espaço vem dela. */
+/* Figma: espaço entre itens 0 (Mobile), 16 (Tablet), 12 (Desktop). Aqui os
+   itens ficam colados (sem gap) e cada link tem 44px de altura mínima, feita
+   com padding vertical em volta da linha de texto (corpo do Figma: body/sm,
+   14px no Mobile e no Tablet e 16px no Desktop). O passo entre links é 44px:
+   é o menor possível com alvos de 44px que não se sobrepõem. */
 .footer__nav a {
   display: flex;
   align-items: center;
   min-height: var(--target-min);
+  padding-block: 0.75rem; /* sem token: ~(44px − linha) / 2, para navegadores sem a unidade lh */
+  padding-block: calc((var(--target-min) - 1lh) / 2);
   color: inherit;
-  font-size: var(--typography-xs);
+  font-size: var(--typography-sm);
   font-weight: 300; /* sem token: Light */
-  line-height: 1.2; /* sem token */
+  line-height: 1.4; /* sem token: Styles/body/sm */
   text-decoration: none;
 }
 
@@ -1237,8 +1387,10 @@ html.js .audio-player audio {
     align-self: start;
   }
 
+  /* Figma: colunas 6 a 8. Com o texto no tamanho do corpo (14px), o segundo
+     link quebraria em duas linhas; a coluna começa uma antes (5 a 8) */
   .footer__nav {
-    grid-column: 6 / span 3;
+    grid-column: 5 / span 4;
     grid-row: 1;
   }
 
@@ -1358,7 +1510,7 @@ html.js .audio-player audio {
    sumiriam. prefers-color-scheme acompanha o fundo do tema de alto contraste.
    -------------------------------------------------------------------------- */
 @media (forced-colors: active) {
-  .obra__zoom img,
+  .obra__expand img,
   .logo img {
     filter: brightness(0);
   }
@@ -1402,14 +1554,14 @@ html.js .audio-player audio {
     color: HighlightText;
   }
 
-  .obra__zoom button:disabled {
+  .obra-modal__btn:disabled {
     opacity: 1;
     border-color: GrayText;
   }
 }
 
 @media (forced-colors: active) and (prefers-color-scheme: dark) {
-  .obra__zoom img,
+  .obra__expand img,
   .logo img {
     filter: brightness(0) invert(1);
   }
