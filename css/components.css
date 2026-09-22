@@ -1,0 +1,1578 @@
+/* ==========================================================================
+   Esquisita como eu — Componentes (etapa 3)
+
+   Usa apenas os tokens de css/tokens.css. Mobile-first: Mobile no padrão,
+   Tablet em (min-width: 48rem), Desktop em (min-width: 64rem).
+
+   Ordem: base · container · logo · player · navbar · hero · a11y · ficha ·
+   artist · footer.
+
+   Valores que NÃO são token (não há variable no Figma) aparecem literais e
+   marcados com "sem token". São só de 4 tipos:
+     - propriedades de estilo de texto (peso, altura de linha, tracking);
+     - raio de borda e espessura de traço;
+     - tamanhos fracionários do Logo e o padding de 112px do Footer;
+     - o alvo de toque mínimo de 44px, que vem do requisito de
+       acessibilidade e não do Figma.
+   Detalhe e justificativa: docs/etapa-3-componentes.md
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+:root {
+  /* Requisito de acessibilidade (44 × 44 px), não vem do Figma */
+  --target-min: 2.75rem;
+
+  /* Movimento: o Figma e o tokens.css não têm duração nem easing. Valores
+     que o CSS já usava (0,2s ease-out no ícone do acordeão) */
+  --motion-duration: 0.2s;
+  --motion-ease: ease-out;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background-default);
+  color: var(--color-foreground-default);
+  font-family: var(--typography-font-family-body), sans-serif;
+  font-size: var(--typography-sm);
+  line-height: 1.4; /* sem token: Styles/body/sm */
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ul {
+  margin: 0;
+}
+
+/* Valores da ficha (dt e dd) podem quebrar palavras longas. Os headings
+   (h1, h2, h3) nunca quebram palavras: quando não cabem, encolhem (ver
+   "Títulos: redução só quando necessário", no fim do arquivo). */
+dt,
+dd {
+  overflow-wrap: anywhere;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+hr {
+  margin: 0;
+  border: 0;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* Texto só para leitor de tela (região de status do zoom) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Container: limita a largura do conteúdo e mantém as margens laterais do
+   Figma como padding. Os fundos ficam nas seções (header, section, footer),
+   que continuam com 100% da largura. Até 90rem (1440px) não muda nada: o
+   max-width só passa a valer acima disso. */
+.container {
+  width: 100%;
+  max-width: var(--layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--margin-left) var(--margin-right);
+}
+
+/* Foco visível. A cor troca em fundos escuros (navbar, footer, botões de zoom) */
+:focus-visible {
+  outline: var(--spacing-4xs) solid var(--focus-ring, var(--color-foreground-default));
+  outline-offset: var(--spacing-4xs);
+}
+
+/* main só recebe foco por script (destino do skip link): sem anel */
+main:focus {
+  outline: none;
+}
+
+/* Skip link: fora da tela até receber foco */
+.skip-link {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: 0;
+  inset-inline-start: var(--spacing-2);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: 0 var(--spacing-2);
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+  font-weight: 600; /* sem token: Styles/body/sm/semibold */
+  text-decoration: none;
+  transform: translateY(-100%);
+}
+
+.skip-link:focus {
+  transform: none;
+  --focus-ring: var(--color-foreground-inverse);
+  outline-offset: calc(var(--spacing-4xs) * -2);
+}
+
+/* Alvo de toque do acordeão (os botões do player têm área própria, abaixo) */
+.accordion-item__title button {
+  min-height: var(--target-min);
+}
+
+/* --------------------------------------------------------------------------
+   Logo (usado no Navbar e no Footer)
+   Imagem SVG (assets/images/logo.svg), com traço em #1A1A1A. Os dois usos
+   são em fundo escuro, então o filtro a deixa branca (foreground/inverse).
+   Altura pelo token size/logo/height (40, 32 e 24px). O Footer tem tamanho
+   próprio no Figma, mais abaixo.
+   -------------------------------------------------------------------------- */
+.logo {
+  display: block;
+  /* se a imagem não carregar, o alt aparece na cor do texto e sem sublinhado */
+  color: inherit;
+  text-decoration: none;
+}
+
+.logo img {
+  display: block;
+  width: auto;
+  height: var(--size-logo-height);
+  filter: brightness(0) invert(1);
+}
+
+/* Alvo de toque de 44px sem aumentar a navbar: a área extra é um pseudo-elemento */
+a.logo {
+  position: relative;
+}
+
+a.logo::after {
+  content: "";
+  position: absolute;
+  inset-block: calc((100% - var(--target-min)) / 2);
+  inset-inline: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Player de áudio (Hero e Artist): um componente só
+   Replica o player nativo de áudio do Chrome (valores --player-* em
+   tokens.css, medidos no Chrome, não vêm do Figma nem dos tokens do site).
+   O js/main.js monta o player a partir de <div class="audio-player"> + <audio>.
+   Sem JS, aparece o <audio controls> nativo.
+
+   .audio-player          container (largura e container query)
+   .player                pílula
+   .player__btn           botão redondo de 32px com área de toque de 44px
+   .player__seek          <input type="range"> do progresso
+   .player__volume        grupo: slider (só com hover) + botão de mudo
+   .player__speed         botão de velocidade + menu
+   -------------------------------------------------------------------------- */
+.audio-player {
+  container: player / inline-size;
+  width: 100%;
+  min-width: min(var(--player-min-width), 100%);
+  max-width: var(--player-max-width);
+}
+
+html.js .audio-player audio {
+  display: none;
+}
+
+.audio-player audio {
+  width: 100%;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  height: var(--player-height);
+  padding-inline: var(--player-padding-inline);
+  border-radius: var(--player-radius);
+  background: var(--player-bg);
+  color: var(--player-fg);
+  font-family: var(--player-font-family);
+  font-size: var(--player-font-size);
+  line-height: normal; /* como o Chrome (16px de altura com a fonte de fallback) */
+}
+
+.player :focus-visible {
+  outline: 2px solid var(--player-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Botões redondos: 32px visíveis, 44px de área de toque (::after) */
+.player__btn {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--player-button-size);
+  height: var(--player-button-size);
+  padding: 0;
+  border-radius: 50%;
+  color: var(--player-icon-color);
+}
+
+.player__btn::after,
+.player__speed-btn::after {
+  content: "";
+  position: absolute;
+  inset: calc((var(--player-button-size) - var(--player-target-size)) / 2);
+}
+
+.player__btn:hover,
+.player__speed-btn:hover {
+  background: var(--player-hover-bg);
+}
+
+.player__btn svg {
+  width: var(--player-icon-size);
+  height: var(--player-icon-size);
+  fill: currentColor;
+}
+
+/* Tempo */
+.player__time {
+  display: flex;
+  flex: none;
+  margin-inline-start: var(--player-time-gap);
+  /* Sobe 1px para alinhar a linha de base ao player nativo do Chrome */
+  margin-block-end: 0.125rem;
+  white-space: nowrap;
+}
+
+.player__duration {
+  margin-inline-start: var(--player-time-gap-duration);
+}
+
+/* Barra de progresso e slider de volume: <input type="range"> sem aparência
+   nativa. --played e --buffered (porcentagens) vêm do JS. */
+.player__seek,
+.player__volume-range {
+  --played: 0%;
+  --buffered: 0%;
+
+  appearance: none;
+  -webkit-appearance: none;
+  height: var(--player-target-size);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.player__seek {
+  flex: 1 1 0;
+  min-width: 3rem;
+  padding-inline: var(--player-seek-padding-inline);
+}
+
+.player__seek:disabled {
+  cursor: default;
+}
+
+.player__seek::-webkit-slider-runnable-track,
+.player__volume-range::-webkit-slider-runnable-track {
+  height: var(--player-track-height);
+  border-radius: var(--player-track-radius);
+  background:
+    linear-gradient(var(--player-track-played), var(--player-track-played)) left / var(--played) 100% no-repeat,
+    linear-gradient(var(--player-track-buffered), var(--player-track-buffered)) left / var(--buffered) 100% no-repeat,
+    var(--player-track-bg);
+}
+
+.player__seek::-moz-range-track,
+.player__volume-range::-moz-range-track {
+  height: var(--player-track-height);
+  border-radius: var(--player-track-radius);
+  background:
+    linear-gradient(var(--player-track-played), var(--player-track-played)) left / var(--played) 100% no-repeat,
+    linear-gradient(var(--player-track-buffered), var(--player-track-buffered)) left / var(--buffered) 100% no-repeat,
+    var(--player-track-bg);
+}
+
+.player__seek::-webkit-slider-thumb,
+.player__volume-range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: var(--player-thumb-size);
+  height: var(--player-thumb-size);
+  margin-top: calc((var(--player-track-height) - var(--player-thumb-size)) / 2);
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-thumb-bg);
+  box-shadow: var(--player-thumb-glow);
+  opacity: 0;
+}
+
+.player__seek::-moz-range-thumb,
+.player__volume-range::-moz-range-thumb {
+  width: var(--player-thumb-size);
+  height: var(--player-thumb-size);
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-thumb-bg);
+  box-shadow: var(--player-thumb-glow);
+  opacity: 0;
+}
+
+/* O marcador aparece com mouse, foco e arraste (como no Chrome) */
+.player__seek:hover::-webkit-slider-thumb,
+.player__seek:focus-visible::-webkit-slider-thumb,
+.player__seek:active::-webkit-slider-thumb,
+.player__volume-range:hover::-webkit-slider-thumb,
+.player__volume-range:focus-visible::-webkit-slider-thumb,
+.player__volume-range:active::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.player__seek:hover::-moz-range-thumb,
+.player__seek:focus-visible::-moz-range-thumb,
+.player__seek:active::-moz-range-thumb,
+.player__volume-range:hover::-moz-range-thumb,
+.player__volume-range:focus-visible::-moz-range-thumb,
+.player__volume-range:active::-moz-range-thumb {
+  opacity: 1;
+}
+
+.player .player__seek:focus-visible,
+.player .player__volume-range:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0.5rem; /* sem token: só do anel de foco */
+}
+
+/* Volume: só o botão de mudo. Com hover (mouse), o slider aparece à
+   esquerda do ícone, dentro de uma pílula cinza um pouco mais escura, e a
+   barra de progresso encolhe. Em touch o slider não existe. */
+.player__volume {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: var(--player-button-size);
+  border-radius: calc(var(--player-button-size) / 2);
+}
+
+.player__volume-slider {
+  display: none;
+}
+
+@media (hover: hover) {
+  .player__volume-slider {
+    display: flex;
+    align-items: center;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.15s ease-out; /* sem token: some com prefers-reduced-motion */
+  }
+
+  .player__volume:hover .player__volume-slider,
+  .player__volume:focus-within .player__volume-slider {
+    /* 16px + slider de 52px + 6px que separam o slider da área de toque do mudo */
+    width: calc(var(--player-volume-slider-offset) + var(--player-volume-slider-width) + (var(--player-target-size) - var(--player-button-size)) / 2);
+  }
+
+  .player__volume:hover,
+  .player__volume:focus-within {
+    background: var(--player-hover-bg);
+  }
+
+  .player__volume .player__btn:hover {
+    background: none;
+  }
+
+  .player__volume-range {
+    flex: none;
+    width: calc(var(--player-volume-slider-width) + var(--player-volume-slider-offset));
+    padding-inline-start: var(--player-volume-slider-offset);
+  }
+}
+
+/* Velocidade */
+/* Mudo e velocidade formam um grupo: o espaço entre eles (--player-speed-gap)
+   e o padding do botão de velocidade são pequenos. As duas áreas de toque
+   continuam com 44px e não se sobrepõem: a do mudo cresce para o lado do
+   volume e a da velocidade para o lado da borda do player (dentro do padding
+   de 18px da pílula), em vez de crescer em volta do botão. */
+.player__speed {
+  position: relative;
+  flex: none;
+  margin-inline-start: var(--player-speed-gap);
+}
+
+.player__speed-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: var(--player-speed-min-width);
+  height: var(--player-button-size);
+  padding: 0 var(--player-speed-padding-inline);
+  border-radius: calc(var(--player-button-size) / 2);
+  color: inherit;
+  white-space: nowrap;
+}
+
+.player__mute::after {
+  /* começa (target − botão − gap) antes do botão e termina no gap */
+  inset-inline: calc((var(--player-target-size) - var(--player-button-size) - var(--player-speed-gap)) * -1) calc(var(--player-speed-gap) * -1);
+}
+
+.player__speed-btn::after {
+  /* começa na borda do botão e vai até 44px de largura (ou a largura do texto) */
+  inset-inline: 0 min(0px, calc(100% - var(--player-target-size)));
+}
+
+.player__menu {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: calc(100% + 0.25rem); /* sem token */
+  z-index: 30;
+  width: var(--player-menu-width);
+  max-width: calc(100vw - 1rem);
+  padding: 0;
+  border-radius: var(--player-menu-radius);
+  background: var(--player-menu-bg);
+  box-shadow: var(--player-menu-shadow);
+  color: var(--player-fg);
+  font-family: var(--player-font-family);
+  font-size: var(--player-menu-font-size);
+}
+
+/* Sem espaço embaixo, o menu abre acima */
+.player__menu.is-above {
+  inset-block: auto calc(100% + 0.25rem);
+}
+
+.player__menu-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--player-menu-item-height);
+  padding: 0 1rem 0 var(--player-menu-item-padding-start); /* sem token: 16px à direita */
+  background: var(--player-menu-bg);
+  color: inherit;
+  font: inherit;
+  line-height: var(--player-menu-item-height);
+  text-align: start;
+  cursor: pointer;
+}
+
+.player__menu-item:hover,
+.player__menu-item[aria-checked="true"] {
+  background: var(--player-menu-item-active-bg);
+}
+
+.player__menu-item:focus-visible {
+  outline-offset: -2px;
+}
+
+.player__menu-item svg {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--player-menu-check-end);
+  width: var(--player-menu-check-size);
+  height: var(--player-menu-check-size);
+  fill: var(--player-menu-check);
+  transform: translateY(-50%);
+  visibility: hidden;
+}
+
+.player__menu-item[aria-checked="true"] svg {
+  visibility: visible;
+}
+
+/* Player estreito (menos de 20rem = --player-compact-width): só o tempo
+   atual, sem a duração. O @container não aceita var(). */
+@container player (width < 20rem) {
+  .player__duration {
+    display: none;
+  }
+
+  /* Sem espaço para o slider de volume: fica só o botão de mudo, como no
+     player nativo do Chrome em larguras muito pequenas */
+  .player__volume-slider {
+    display: none;
+  }
+}
+
+/* Player de até 22rem (Mobile 320px e Tablet 344px): com o slider de volume
+   aberto, a barra de progresso ficaria sem espaço. Enquanto o volume está
+   aberto (hover ou foco), a duração some, como no player nativo do Chrome. */
+@media (hover: hover) {
+  @container player (width < 22rem) {
+    .player:has(.player__volume:hover, .player__volume:focus-within) .player__duration {
+      display: none;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Navbar
+   Mobile: só o logo, centralizado (o Figma não tem menu no Mobile).
+   -------------------------------------------------------------------------- */
+.navbar {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: flex;
+  align-items: center;
+  min-height: var(--size-nav-height); /* mínimo: cresce se o texto for ampliado */
+  padding: var(--spacing-2) 0 var(--spacing-2_5);
+  border-bottom: 1px solid var(--color-border-strong); /* sem token: 1px */
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar__nav {
+  display: none;
+}
+
+.navbar__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--spacing-4); /* Figma: 32 (não vinculado) */
+}
+
+.navbar__list a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--target-min);
+  min-height: var(--target-min);
+  color: inherit;
+  font-size: var(--typography-sm);
+  font-weight: 400; /* sem token: Styles/body/sm/regular */
+  line-height: 1.4; /* sem token */
+  text-decoration: none;
+}
+
+@media (min-width: 48rem) {
+  .navbar {
+    /* 8 em cima e 8 + 2 embaixo mantêm o centro do desenho (0 e 2) */
+    padding: var(--spacing-1) 0 calc(var(--spacing-1) + var(--spacing-4xs));
+  }
+
+  .navbar__inner {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--spacing-1) var(--spacing-4xl);
+  }
+
+  .navbar__nav {
+    display: block;
+  }
+}
+
+@media (min-width: 64rem) {
+  .navbar__list a {
+    font-weight: 500; /* sem token: Styles/body/sm/medium */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Hero (+ Obra)
+   -------------------------------------------------------------------------- */
+.hero {
+  background: var(--color-background-default);
+  color: var(--color-foreground-default);
+}
+
+/* Imagem dentro do container (margens laterais do Figma), com o respiro de
+   cima do Figma (40, 32, 24 = spacing/lg em cada breakpoint) */
+.hero__image {
+  padding-block-start: var(--spacing-lg);
+}
+
+/* Quadro da obra. A proporção é a da imagem com moldura (1600 × 871, a mesma
+   do quadro do Figma) e a altura nunca passa de 80% da janela. Se passar, a
+   proporção reduz a largura também e o quadro fica centralizado. A imagem
+   ocupa o quadro com object-fit: contain, então nunca é cortada. */
+.obra {
+  position: relative;
+  aspect-ratio: 1600 / 871; /* sem token: proporção da imagem com moldura */
+  max-height: 80vh; /* sem token */
+  margin-inline: auto;
+}
+
+.obra__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Botões redondos escuros sobre a imagem: "Ampliar imagem" no Hero e os
+   controles do modal. O anel de foco é branco, com um halo escuro. */
+.obra__expand {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: grid;
+  place-items: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  padding: 0;
+  border: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-background-inverse);
+  cursor: pointer;
+}
+
+.obra__expand img {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+  filter: brightness(0) invert(1); /* SVG vem em gray/800; aqui é branco (foreground/inverse) */
+}
+
+.obra__expand:focus-visible {
+  outline-offset: 0;
+  box-shadow: 0 0 0 calc(var(--spacing-4xs) * 2) var(--color-background-inverse);
+}
+
+.obra__expand {
+  position: absolute;
+  inset-block-end: var(--spacing-2);
+  inset-inline-end: var(--spacing-2);
+}
+
+/* --------------------------------------------------------------------------
+   Modal da obra (<dialog>, montado por js/main.js ao abrir pela primeira vez)
+   Tela cheia em todos os tamanhos, aberto com showModal() (top layer: nada da
+   página, nem a navbar, fica por cima). Fundo --overlay-bg (preto do projeto
+   a 90%). A imagem fica centralizada com object-fit: contain e respiro em
+   volta (16, 32 e 48px). Com zoom, o stage rola (mouse: arrastar; teclado:
+   setas; toque: rolagem e pinça nativas).
+   -------------------------------------------------------------------------- */
+.obra-modal {
+  --obra-zoom: 1;
+  --obra-modal-gap: var(--spacing-2); /* 16px; 32px no Tablet e 48px no Desktop */
+  --obra-modal-inset: var(--spacing-2); /* distância dos botões às bordas */
+
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100vw; /* sem token */
+  width: 100dvw;
+  max-width: none;
+  height: 100vh; /* sem token */
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--overlay-bg, var(--color-background-inverse));
+  color: var(--color-foreground-inverse);
+}
+
+.obra-modal::backdrop {
+  background: none; /* o fundo é do próprio dialog */
+}
+
+.obra-modal:not([open]) {
+  display: none;
+}
+
+/* Sem zoom, a obra fica fora das faixas dos botões: em cima e embaixo o
+   respiro é no mínimo botão + margem + respiro do botão à imagem */
+.obra-modal__stage {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding-block: max(var(--obra-modal-gap), calc(var(--target-min) + var(--obra-modal-inset) * 2));
+  padding-inline: var(--obra-modal-gap);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  touch-action: pan-x pan-y pinch-zoom; /* a pinça é do navegador */
+}
+
+.obra-modal__stage[data-zoomed] {
+  overflow: auto;
+  cursor: grab;
+}
+
+.obra-modal__stage[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.obra-modal__stage img {
+  display: block;
+  width: calc(100% * var(--obra-zoom));
+  max-width: none;
+  height: calc(100% * var(--obra-zoom));
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Botões claros sobre o fundo escuro: círculo branco com o ícone gray/800.
+   Borda do botão contra o fundo ≥ 3:1 (1.4.11), também desabilitado */
+.obra-modal__btn {
+  --focus-ring: var(--color-foreground-inverse);
+
+  display: grid;
+  place-items: center;
+  width: var(--target-min);
+  height: var(--target-min);
+  padding: 0;
+  border: 0;
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-foreground-inverse);
+  cursor: pointer;
+}
+
+.obra-modal__btn img {
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+}
+
+/* O anel branco fica separado do botão (branco) por um halo escuro */
+.obra-modal__btn:focus-visible {
+  box-shadow: 0 0 0 var(--spacing-4xs) var(--color-background-inverse);
+}
+
+.obra-modal__btn:disabled {
+  opacity: 0.4; /* sem token: estado desabilitado */
+  cursor: not-allowed;
+}
+
+.obra-modal__close {
+  position: absolute;
+  inset-block-start: max(var(--obra-modal-inset), env(safe-area-inset-top));
+  inset-inline-end: max(var(--obra-modal-inset), env(safe-area-inset-right));
+}
+
+.obra-modal__zoom {
+  position: absolute;
+  inset-block-end: max(var(--obra-modal-inset), env(safe-area-inset-bottom));
+  inset-inline-end: max(var(--obra-modal-inset), env(safe-area-inset-right));
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+/* Rolagem da página travada enquanto o modal está aberto (o js/main.js
+   compensa a largura da barra de rolagem com padding no <html>) */
+html.is-modal-open {
+  overflow: hidden;
+}
+
+@media (min-width: 48rem) {
+  .obra-modal {
+    --obra-modal-gap: var(--spacing-4); /* 32px */
+  }
+}
+
+@media (min-width: 64rem) {
+  .obra-modal {
+    --obra-modal-gap: var(--spacing-6); /* 48px */
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .obra-modal[open] {
+    animation: obra-modal-in var(--motion-duration) var(--motion-ease);
+  }
+}
+
+@keyframes obra-modal-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-block: var(--spacing-2xl) var(--spacing-4xl);
+}
+
+.hero__title {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2); /* Figma: 16 (não vinculado) */
+}
+
+.hero__title h1 {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-h1); /* com redução em cqi em @supports, no fim do arquivo */
+  font-weight: 800; /* sem token: ExtraBold */
+  line-height: 1.2; /* sem token */
+  letter-spacing: -0.01em; /* sem token: -1% */
+  text-transform: uppercase;
+}
+
+.hero__subtitle {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-subtitle);
+  font-weight: 400; /* sem token: Regular */
+  line-height: 1.2; /* sem token */
+}
+
+/* --------------------------------------------------------------------------
+   A11y + AccordionList + AccordionItem
+   -------------------------------------------------------------------------- */
+.a11y {
+  padding-block: var(--margin-top) var(--margin-bottom);
+}
+
+.a11y__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-5); /* Figma: 40 (não vinculado) */
+}
+
+.a11y__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+/* Títulos de seção: tamanho do token de cada breakpoint. Os containers
+   (container-type) são a coluna de cada título: .a11y__title, .ficha__title,
+   .artist__content (Tablet e Desktop) e .artist__inner (Mobile, quando
+   .artist__content é display: contents e não gera caixa). */
+.a11y__title,
+.ficha__title,
+.artist__inner {
+  container-type: inline-size;
+}
+
+.a11y__title h2,
+.ficha h2,
+.artist h2 {
+  font-family: var(--typography-font-family-title), sans-serif;
+  font-size: var(--typography-h2); /* com redução em cqi em @supports, no fim do arquivo */
+  font-weight: 800; /* sem token: ExtraBold */
+  line-height: 1.2; /* sem token */
+  text-transform: uppercase;
+}
+
+.a11y__title p {
+  font-size: var(--typography-md);
+  font-weight: 400; /* sem token: Styles/body/md/regular */
+  line-height: 1.4; /* sem token */
+  /* Figma Mobile: foreground/default. Tablet e Desktop: foreground/secondary */
+}
+
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container do título (ver "Títulos: redução só quando necessário", no fim do arquivo) */
+.accordion-item {
+  container-type: inline-size;
+  --accordion-pad: var(--spacing-3); /* Mobile: 24 */
+
+  border-bottom: 1px solid var(--color-border-default); /* sem token: 1px */
+}
+
+/* Sem JS o título é só o heading, com o mesmo espaçamento e tipografia */
+.accordion-item__title {
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
+  font-size: var(--typography-xl); /* com redução em cqi em @supports, no fim do arquivo */
+  font-weight: 600; /* sem token: Styles/body/xl/semi (SemiBold), igual aberto e fechado */
+  line-height: 1.3; /* sem token */
+}
+
+.accordion-item:first-child .accordion-item__title {
+  padding-block-start: 0;
+}
+
+/* Com JS o padding passa para o botão (área de toque inteira) */
+.js .accordion-item__title {
+  padding-block: 0;
+}
+
+.accordion-item__title button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Figma: 32. Com 16, e com quebra de linha do ícone, o texto e o ícone não
+     estouram a coluna quando o texto é ampliado (as palavras dos títulos não
+     quebram). Com o texto curto não muda nada: o ícone fica na ponta direita. */
+  flex-wrap: wrap;
+  gap: var(--spacing-1) var(--spacing-2);
+  width: 100%;
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
+  font-size: var(--typography-xl); /* com redução em cqi em @supports, no fim do arquivo */
+  font-weight: 600; /* sem token: Styles/body/xl/semi (SemiBold), igual aberto e fechado */
+  line-height: 1.3; /* sem token */
+  text-align: start;
+  border-radius: var(--spacing-1);
+}
+
+/* Hover sutil (só com mouse): fundo --color-border-subtle no botão inteiro,
+   estendido 8px para os lados com box-shadow (o texto não muda de lugar) e
+   sem mudar o peso da fonte */
+/* @media (hover: hover) {
+  .accordion-item__title button:hover {
+    background: var(--color-border-subtle);
+    box-shadow:
+      calc(var(--spacing-1) * -1) 0 0 var(--color-border-subtle),
+      var(--spacing-1) 0 0 var(--color-border-subtle);
+  }
+} */
+
+/* Foco visível no botão inteiro: contorno de 2px (--spacing-4xs) em
+   foreground/default, 17,4:1 sobre o branco */
+.accordion-item__title button:focus-visible {
+  outline: var(--spacing-4xs) solid var(--color-foreground-default);
+  outline-offset: var(--spacing-4xs);
+}
+
+.accordion-item:first-child .accordion-item__title button {
+  padding-top: 0;
+}
+
+/* Mobile: com o painel aberto o título perde padding embaixo (Figma: 16) */
+.accordion-item__title button[aria-expanded="true"] {
+  padding-block-end: var(--spacing-2);
+}
+
+/* Painel: grid de 1 linha que anima de 0fr a 1fr. O conteúdo fechado fica
+   com visibility:hidden (some da árvore de acessibilidade e do Tab) e o JS
+   também põe inert. Sem JS a classe .js não existe e tudo fica aberto. */
+.accordion-item__answer {
+  display: grid;
+  grid-template-rows: 1fr;
+  font-size: max(var(--typography-md), 1rem); /* sem token: mínimo de 16px (o token vale 14px no Mobile) */
+  font-weight: 400; /* sem token: Styles/body/md/regular */
+  line-height: 1.4; /* sem token */
+}
+
+.accordion-item__content {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.accordion-item__content p {
+  /* content-box: os 65ch valem para o texto, sem contar o padding */
+  box-sizing: content-box;
+  max-width: 65ch;
+  padding: 0 var(--spacing-8) calc(var(--accordion-pad) - 1px) 0;
+}
+
+.js .accordion-item__answer {
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--motion-duration) var(--motion-ease),
+    visibility 0s linear var(--motion-duration);
+}
+
+.js .accordion-item[data-open] .accordion-item__answer {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--motion-duration) var(--motion-ease),
+    visibility 0s;
+}
+
+/* Ícone mais/menos: SVG inline (criado pelo js/main.js) de 1em × 1em, então
+   escala com o tamanho da fonte do título (16, 20 e 24px). Cor do texto
+   (currentColor). Traço proporcional: 2/24 em (2px aos 24px do Desktop), com
+   piso de 1,5px renderizado. As linhas usam unidades em em, sem viewBox, então
+   o stroke-width em CSS é em pixels reais (sem vector-effect). */
+.accordion-item__icon {
+  flex: none;
+  margin-inline-start: auto;
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: max(1.5px, calc(2em / 24)); /* sem token: 2px no Desktop, piso de 1,5px */
+  overflow: visible;
+}
+
+.accordion-item__icon line {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Fechado: a segunda linha vira a vertical do "+". Aberto: fica deitada e o "−" sobra */
+.accordion-item__icon .accordion-item__icon-v {
+  transform: rotate(90deg);
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+[aria-expanded="true"] .accordion-item__icon .accordion-item__icon-v {
+  transform: rotate(0deg);
+}
+
+@media (min-width: 48rem) {
+  .a11y {
+    padding-block-end: var(--margin-top);
+  }
+
+  .a11y__inner {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-5); /* Figma: 40 */
+  }
+
+  .a11y__title {
+    grid-column: 1 / span 4;
+    gap: var(--spacing-2);
+  }
+
+  .a11y__title p {
+    color: var(--color-foreground-secondary);
+  }
+
+  .accordion-list {
+    grid-column: 5 / span 4;
+  }
+
+  .accordion-item {
+    --accordion-pad: 1.75rem; /* sem token: 28, decisão de design (Tablet) */
+  }
+
+  .accordion-item__title button[aria-expanded="true"] {
+    padding-block-end: var(--accordion-pad);
+  }
+
+}
+
+@media (min-width: 64rem) {
+  .a11y__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .a11y__title {
+    grid-column: 1 / span 5;
+  }
+
+  .accordion-list {
+    grid-column: 7 / span 6;
+  }
+
+  .accordion-item {
+    --accordion-pad: var(--spacing-4); /* Desktop: 32 */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Ficha + ListFicha + ListItem
+   -------------------------------------------------------------------------- */
+.ficha {
+  /* Mobile: o padding de baixo usa margin/top (decisão de design) */
+  padding-block: var(--margin-top);
+}
+
+.ficha__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 (não vinculado) */
+}
+
+.list-ficha {
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: grid;
+  row-gap: var(--spacing-0_25); /* Figma: 2 no Mobile (frame "Text") */
+  padding: var(--spacing-1) 0;
+}
+
+/* Divisor desenhado à mão no Figma (frame de 1px). O espaço até ele é o
+   itemSpacing do ListItem: 16 no Mobile (decisão de design, sem vínculo),
+   spacing/sm nos outros breakpoints. */
+.list-item:not(:last-child)::after {
+  content: "";
+  height: 1px; /* sem token: Stroke/Divider Width */
+  margin-block-start: calc(var(--spacing-2) - var(--spacing-0_25));
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-border-default);
+}
+
+.list-item dt {
+  color: var(--color-foreground-secondary);
+  font-size: var(--typography-xs);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.2; /* sem token */
+}
+
+.list-item dd {
+  font-size: var(--typography-xl);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.3; /* sem token */
+}
+
+@media (min-width: 48rem) {
+  .ficha {
+    padding-block-end: var(--margin-bottom);
+  }
+
+  .ficha__inner {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    align-items: start;
+    column-gap: var(--spacing-5); /* Figma: 40 */
+  }
+
+  .ficha__title {
+    grid-column: 1 / span 4;
+  }
+
+  .list-ficha {
+    grid-column: 5 / span 4;
+  }
+
+  .list-item {
+    row-gap: var(--spacing-0_5); /* Figma: 4 */
+    padding: var(--spacing-1) var(--spacing-sm) var(--spacing-2);
+  }
+
+  .list-item:not(:last-child)::after {
+    margin-block-start: calc(var(--spacing-sm) - var(--spacing-0_5));
+  }
+}
+
+@media (min-width: 64rem) {
+  .ficha__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .ficha__title {
+    grid-column: 1 / span 5;
+  }
+
+  .list-ficha {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+.divider {
+  height: calc(var(--spacing-2) * 2 + 1px); /* Figma: 33 = 16 + 1 + 16 */
+  padding-inline: var(--margin-left);
+  background: var(--color-background-default);
+}
+
+.divider::before {
+  content: "";
+  display: block;
+  /* Acima de 1440px a linha para na largura do container (mesmas margens) */
+  max-width: calc(var(--layout-max-width) - var(--margin-left) - var(--margin-right));
+  height: 1px; /* sem token */
+  margin: var(--spacing-2) auto 0;
+  border-radius: 99px; /* sem token: pill */
+  background: var(--color-border-subtle);
+}
+
+/* --------------------------------------------------------------------------
+   Artist + Audiodescription
+   Mobile: título, foto, texto, player (ordem do Figma). O DOM tem foto antes
+   do título; grid-row reordena só no visual.
+   -------------------------------------------------------------------------- */
+.artist {
+  padding-block: var(--margin-top);
+}
+
+.artist__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 */
+}
+
+.artist__content {
+  display: contents;
+}
+
+.artist h2 {
+  grid-row: 1;
+}
+
+.artist__image {
+  position: relative;
+  grid-row: 2;
+  aspect-ratio: 327 / 300; /* sem token: 327 × 300 do Figma */
+}
+
+.artist__image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px; /* sem token: Mobile */
+  object-fit: cover;
+  object-position: center top; /* não corta a cabeça ao redimensionar */
+}
+
+.artist__description {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  grid-row: 3;
+  font-size: var(--typography-sm);
+  font-weight: 400; /* sem token: Styles/body/sm/regular */
+  line-height: 1.4; /* sem token */
+}
+
+/* Texto corrido: no máximo 65 caracteres por linha */
+.artist__description p {
+  max-width: 65ch;
+}
+
+.audiodescription {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  grid-row: 4;
+}
+
+@media (min-width: 48rem) {
+  .artist__inner {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: var(--spacing-5); /* Figma: 40 */
+  }
+
+  .artist__image {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    aspect-ratio: auto;
+  }
+
+  .artist__image img {
+    border-radius: 4px; /* sem token */
+  }
+
+  .artist__content {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    grid-column: 5 / span 4;
+    grid-row: 1;
+  }
+}
+
+@media (min-width: 64rem) {
+  .artist__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+  }
+
+  .artist__image {
+    grid-column: 1 / span 5;
+  }
+
+  .artist__content {
+    grid-column: 7 / span 6;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+.footer {
+  --focus-ring: var(--color-foreground-inverse);
+
+  padding-block: var(--spacing-5) var(--spacing-7);
+  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  background: var(--color-background-inverse);
+  color: var(--color-foreground-inverse);
+}
+
+.footer__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--spacing-3); /* Figma: 24 */
+}
+
+.footer__top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8); /* Figma: 64 */
+}
+
+/* Logo do Footer: altura própria do Figma, sem token (55,53px no Mobile e no
+   Tablet, 96,04px no Desktop). */
+.footer .logo img {
+  height: 3.47rem; /* sem token: 55,53px */
+}
+
+.footer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1_5); /* Figma: 12 */
+}
+
+.footer__nav h2 {
+  font-size: var(--typography-sm);
+  font-weight: 600; /* sem token: Styles/body/sm/semibold */
+  line-height: 1.4; /* sem token */
+}
+
+.footer__nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Figma: espaço entre itens 0 (Mobile), 16 (Tablet), 12 (Desktop). Aqui os
+   itens ficam colados (sem gap) e cada link tem 44px de altura mínima, feita
+   com padding vertical em volta da linha de texto (corpo do Figma: body/sm,
+   14px no Mobile e no Tablet e 16px no Desktop). O passo entre links é 44px:
+   é o menor possível com alvos de 44px que não se sobrepõem. */
+.footer__nav a {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding-block: 0.75rem; /* sem token: ~(44px − linha) / 2, para navegadores sem a unidade lh */
+  padding-block: calc((var(--target-min) - 1lh) / 2);
+  color: inherit;
+  font-size: var(--typography-sm);
+  font-weight: 300; /* sem token: Light */
+  line-height: 1.4; /* sem token: Styles/body/sm */
+  text-decoration: none;
+}
+
+.footer__divider {
+  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+}
+
+.footer__copyright {
+  font-size: var(--typography-xs);
+  font-weight: 500; /* sem token: Styles/body/2xs/medium */
+  line-height: 1.2; /* sem token */
+}
+
+@media (min-width: 48rem) {
+  .footer__inner {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: var(--spacing-5); /* Figma: 40 */
+  }
+
+  .footer__top {
+    display: contents;
+  }
+
+  .footer .logo {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+    align-self: start;
+  }
+
+  /* Figma: colunas 6 a 8. Com o texto no tamanho do corpo (14px), o segundo
+     link quebraria em duas linhas; a coluna começa uma antes (5 a 8) */
+  .footer__nav {
+    grid-column: 5 / span 4;
+    grid-row: 1;
+  }
+
+  .footer__divider {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .footer__copyright {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    text-align: center;
+  }
+}
+
+@media (min-width: 64rem) {
+  .footer {
+    padding-block: 7rem; /* sem token: 112 (decisão de design em aberto) */
+  }
+
+  .footer__inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto var(--spacing-0_5) auto; /* Figma: linha do divisor com 4 */
+    column-gap: var(--spacing-2_5); /* Figma: 20 */
+    row-gap: var(--spacing-6); /* Figma: 48 */
+  }
+
+  .footer .logo img {
+    height: 6rem; /* sem token: 96,04px */
+  }
+
+  .footer__nav {
+    grid-column: 9 / span 4;
+  }
+
+  .footer__divider {
+    align-self: center;
+  }
+
+  .footer__copyright {
+    font-size: var(--typography-sm);
+    font-weight: 600; /* sem token: Styles/body/sm/semibold */
+    line-height: 1.4; /* sem token */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Títulos: redução só quando necessário
+   Os headings usam exatamente o token de tamanho do breakpoint (sem
+   interpolação) e nunca quebram palavras. Se a coluna do título for estreita
+   demais para a palavra mais longa, o tamanho encolhe:
+     font-size: min(var(--token-do-breakpoint), Ncqi)
+   cqi = 1% da largura da coluna do título (container-type: inline-size).
+   N = ⌊100 / largura da palavra em em⌋, na fonte, no peso e no tracking do
+   título (Plus Jakarta Sans, medido no Chrome). Com N, a palavra ocupa 98% da
+   coluna ou menos. O resultado nunca passa do token.
+     - h2 de seção  ExtraBold 800, caixa alta   ACESSIBILIDADE 8,224em → N = 12
+     - h1 do Hero   ExtraBold 800, caixa alta,
+                    tracking -1%                ESQUISITA      5,203em → N = 19
+     - h3 acordeão  Light 300                   Audiodescrição 7,569em → N = 13
+   Hierarquia: em cada largura, h1 e h2 usam o mesmo breakpoint e o token do h1
+   é maior que o do h2 (32 > 28, 48 > 32, 64 > 48). O teto do h1 (19cqi de uma
+   coluna que é a largura toda) também é maior que o do h2 (12cqi de uma coluna
+   igual ou menor). Logo o h2 nunca passa do h1.
+   Só vale em navegadores com cqi; nos outros ficam os tokens.
+   -------------------------------------------------------------------------- */
+@supports (width: 1cqi) {
+  .a11y__title h2,
+  .ficha h2,
+  .artist h2 {
+    font-size: min(var(--typography-h2), 12cqi);
+  }
+
+  .hero__title h1 {
+    font-size: min(var(--typography-h1), 19cqi);
+  }
+
+  .accordion-item__title,
+  .accordion-item__title button {
+    font-size: min(var(--typography-xl), 13cqi);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Movimento
+   Sem preferência: rolagem suave e transições. Com reduce: nenhuma animação
+   nem transição, e a mudança de estado é imediata.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .skip-link {
+    transition: transform 0.15s ease-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Cores forçadas (Alto Contraste do Windows)
+   O navegador troca as cores por cores do sistema. Os ícones são <img> com
+   cor fixa, e o mais/menos do acordeão e a barra de progresso são fundos, que
+   sumiriam. prefers-color-scheme acompanha o fundo do tema de alto contraste.
+   -------------------------------------------------------------------------- */
+@media (forced-colors: active) {
+  .obra__expand img,
+  .logo img {
+    filter: brightness(0);
+  }
+
+  /* Player: cores do sistema; os ícones (SVG com currentColor) e o texto
+     seguem sozinhos */
+  .player {
+    --player-bg: Canvas;
+    --player-fg: CanvasText;
+    --player-icon-color: CanvasText;
+    --player-track-bg: GrayText;
+    --player-track-buffered: CanvasText;
+    --player-track-played: Highlight;
+    --player-thumb-bg: CanvasText;
+    --player-thumb-glow: none;
+    --player-menu-bg: Canvas;
+    --player-menu-item-active-bg: Highlight;
+    --player-menu-check: CanvasText;
+
+    border: 1px solid CanvasText;
+  }
+
+  .player__seek,
+  .player__volume-range,
+  .player__menu {
+    forced-color-adjust: none;
+  }
+
+  .player__menu {
+    border: 1px solid CanvasText;
+  }
+
+  .player__menu-item:hover,
+  .player__menu-item[aria-checked="true"] {
+    color: HighlightText;
+  }
+
+  .obra-modal__btn:disabled {
+    opacity: 1;
+    border-color: GrayText;
+  }
+}
+
+@media (forced-colors: active) and (prefers-color-scheme: dark) {
+  .obra__expand img,
+  .logo img {
+    filter: brightness(0) invert(1);
+  }
+}

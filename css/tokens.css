@@ -1,0 +1,309 @@
+/* ==========================================================================
+   Esquisita como eu — Design tokens (etapa 1)
+
+   Fonte: variables do arquivo Figma GoUtcRxZO2sf3t84wFCfAb, lidas em 2026-09-21
+   (collections primitives, responsive e theme). Mapeamento variable → custom
+   property em docs/etapa-1-tokens.md.
+
+   Convenção de nomes: o nome da variable do Figma com "/" trocado por "-" e
+   prefixado por "--" (color/foreground/default → --color-foreground-default).
+
+   Mobile-first (collection responsive):
+     :root                       mode Mobile  (referência 375px)
+     @media (min-width: 48rem)   mode Tablet  (referência 800px)
+     @media (min-width: 64rem)   mode Desktop (referência 1440px)
+   Os overrides listam só o que muda em relação ao breakpoint anterior.
+
+   Tema (collection theme): Light em :root e .theme-light, Dark em .theme-dark.
+
+   Unidades: rem (base 16px) para tipografia, espaçamento, margens e tamanhos.
+   px só em size/icon-border, que é espessura de traço.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Primitivos (collection primitives)
+   -------------------------------------------------------------------------- */
+:root {
+  /* Famílias tipográficas */
+  --typography-font-family-title:     "Plus Jakarta Sans";
+  --typography-font-family-body:      "Plus Jakarta Sans";
+  --typography-font-family-controls:  Arial;
+
+  /* Cores */
+  --color-black:     #1a1a1a;
+  --color-white:     #ffffff;
+  --color-blue:      #607490;
+  --color-gray-50:   #ededed;
+  --color-gray-100:  #dbdbdb;
+  --color-gray-200:  #c8c8c8;
+  --color-gray-300:  #b6b6b6;
+  --color-gray-400:  #a4a4a4;
+  --color-gray-500:  #808080;
+  --color-gray-600:  #6d6d6d;
+  --color-gray-700:  #5b5b5b;
+  --color-gray-800:  #494949;
+  --color-gray-900:  #373737;
+
+  /* Espaçamento (escala fixa, igual em todos os breakpoints) */
+  --spacing-0_25:  0.125rem;
+  --spacing-0_5:   0.25rem;
+  --spacing-1:     0.5rem;
+  --spacing-1_5:   0.75rem;
+  --spacing-2:     1rem;
+  --spacing-2_5:   1.25rem;
+  --spacing-3:     1.5rem;
+  --spacing-4:     2rem;
+  --spacing-5:     2.5rem;
+  --spacing-6:     3rem;
+  --spacing-7:     3.5rem;
+  --spacing-8:     4rem;
+}
+
+/* --------------------------------------------------------------------------
+   Responsivos (collection responsive) — Mobile é o padrão
+   -------------------------------------------------------------------------- */
+:root {
+  /* Tamanhos */
+  --size-width:        23.4375rem;
+  --size-viewport:     20.4375rem;
+  --size-icon:         1.25rem;
+  --size-icon-border:  1px;
+  --size-nav-height:   4rem;
+  --size-logo-height:  1.5rem;
+
+  /* Margens */
+  --margin-top:     2rem;
+  --margin-bottom:  2.5rem;
+  --margin-left:    1.5rem;
+  --margin-right:   1.5rem;
+
+  /* Espaçamento */
+  --spacing-4xl:  2rem;
+  --spacing-3xl:  1.5rem;
+  --spacing-2xl:  1rem;
+  --spacing-xl:   2rem;
+  --spacing-lg:   1.5rem;
+  --spacing-md:   1rem;
+  --spacing-sm:   0.5rem;
+  --spacing-xs:   0.25rem;
+  --spacing-2xs:  0.125rem;
+  --spacing-3xs:  0.125rem;
+  --spacing-4xs:  0.125rem;
+
+  /* Tipografia (tamanho de fonte) */
+  --typography-h1:        2rem;
+  --typography-h2:        1.75rem;
+  --typography-subtitle:  1rem;
+  --typography-3xl:       1.25rem;
+  --typography-2xl:       1rem;
+  --typography-xl:        1rem;
+  --typography-lg:        1.125rem;
+  --typography-md:        0.875rem;
+  --typography-sm:        0.875rem;
+  --typography-xs:        0.75rem;
+  --typography-2xs:       0.75rem;
+}
+
+/* Tablet (referência 800px). Sem override, iguais ao breakpoint anterior:
+   --size-viewport, --size-icon-border, --spacing-3xs, --spacing-4xs, --typography-lg, --typography-sm, --typography-xs, --typography-2xs */
+@media (min-width: 48rem) {
+  :root {
+    --size-width:           50rem;
+    --size-icon:            1.5rem;
+    --size-nav-height:      4.5rem;
+    --size-logo-height:     2rem;
+    --margin-top:           3rem;
+    --margin-bottom:        3.5rem;
+    --margin-left:          3.5rem;
+    --margin-right:         3.5rem;
+    --spacing-4xl:          3rem;
+    --spacing-3xl:          2.5rem;
+    --spacing-2xl:          2rem;
+    --spacing-xl:           2.5rem;
+    --spacing-lg:           2rem;
+    --spacing-md:           1.5rem;
+    --spacing-sm:           1rem;
+    --spacing-xs:           0.5rem;
+    --spacing-2xs:          0.25rem;
+    --typography-h1:        3rem;
+    --typography-h2:        2rem;
+    --typography-subtitle:  1.5rem;
+    --typography-3xl:       1.5rem;
+    --typography-2xl:       1.25rem;
+    --typography-xl:        1.25rem;
+    --typography-md:        1rem;
+  }
+}
+
+/* Desktop (referência 1440px). Sem override, iguais ao breakpoint anterior:
+   --spacing-4xs, --typography-2xs */
+@media (min-width: 64rem) {
+  :root {
+    --size-width:           90rem;
+    --size-viewport:        75rem;
+    --size-icon:            2rem;
+    --size-icon-border:     1.25px;
+    --size-nav-height:      5rem;
+    --size-logo-height:     2.5rem;
+    --margin-top:           5rem;
+    --margin-bottom:        6.5rem;
+    --margin-left:          7.5rem;
+    --margin-right:         7.5rem;
+    --spacing-4xl:          5rem;
+    --spacing-3xl:          4rem;
+    --spacing-2xl:          3.5rem;
+    --spacing-xl:           3rem;
+    --spacing-lg:           2.5rem;
+    --spacing-md:           2rem;
+    --spacing-sm:           1.5rem;
+    --spacing-xs:           1rem;
+    --spacing-2xs:          0.5rem;
+    --spacing-3xs:          0.25rem;
+    --typography-h1:        4rem;
+    --typography-h2:        3rem;
+    --typography-subtitle:  2rem;
+    --typography-3xl:       2rem;
+    --typography-2xl:       1.75rem;
+    --typography-xl:        1.5rem;
+    --typography-lg:        1.25rem;
+    --typography-md:        1.125rem;
+    --typography-sm:        1rem;
+    --typography-xs:        0.875rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Layout (não vem de variable do Figma)
+   Largura máxima do conteúdo (.container). É igual ao size/width do Desktop
+   (1440px), mas fixa: não muda por breakpoint nem acompanha o modo.
+   -------------------------------------------------------------------------- */
+:root {
+  --layout-max-width: 90rem;
+}
+
+/* --------------------------------------------------------------------------
+   Player de áudio (--player-*)
+   Estes valores NÃO vêm do Figma nem seguem os tokens do site. Vêm do player
+   nativo de áudio do Chrome, medidos com o DevTools (estilos computados do
+   shadow DOM de <audio controls>) e conferidos com capturas de tela. O
+   player próprio (js/main.js + components.css) os usa para ficar igual ao
+   do Chrome em qualquer navegador.
+   Exceções: --player-target-size e --player-focus-ring são requisitos de
+   acessibilidade, e --player-menu-check foi escurecido (ver abaixo).
+   -------------------------------------------------------------------------- */
+:root {
+  /* Pílula */
+  --player-height:           3.375rem;                 /* 54px */
+  --player-radius:           6.25rem;                  /* 100px */
+  --player-bg:               #f1f3f4;
+  --player-padding-inline:   1.125rem;                 /* 18px: 10px do Chrome + 8px (pedido) */
+  --player-min-width:        18.75rem;                 /* 300px (pedido) */
+  --player-max-width:        20rem;                    /* 320px, Mobile (pedido). Tablet e Desktop: abaixo */
+  --player-compact-width:    20rem;                    /* abaixo disso o tempo mostra só o atual (usado em @container, que não aceita var()) */
+
+  /* Texto (tempo e velocidade) */
+  --player-font-family:      Roboto-Regular, Roboto, sans-serif;
+  --player-font-size:        0.875rem;                 /* 14px */
+  --player-fg:               rgba(0, 0, 0, 0.87);
+  --player-time-gap:         0.3125rem;                /* 5px, antes do tempo atual */
+  --player-time-gap-duration: 0.25rem;                 /* 4px, antes da duração */
+
+  /* Botões */
+  --player-button-size:      2rem;                     /* 32px (parte visível) */
+  --player-icon-size:        1.25rem;                  /* 20px */
+  --player-icon-color:       #000000;
+  --player-hover-bg:         rgba(32, 33, 36, 0.06);
+  --player-target-size:      2.75rem;                  /* 44px: área de toque (acessibilidade, não vem do Chrome) */
+  --player-speed-min-width:  1.75rem;                  /* 28px: botão de velocidade, mais justo que os 32px dos outros */
+  --player-speed-padding-inline: 0.375rem;             /* 6px (era 8px) */
+  --player-speed-gap:        0.25rem;                  /* 4px entre o mudo e a velocidade (era 12px) */
+  --player-focus-ring:       #1a1a1a;                  /* anel de foco (acessibilidade, não vem do Chrome) */
+
+  /* Barra de progresso e volume */
+  --player-track-height:     0.25rem;                  /* 4px */
+  --player-track-radius:     0.125rem;                 /* 2px */
+  --player-track-bg:         rgba(0, 0, 0, 0.2);       /* parte não carregada */
+  --player-track-buffered:   rgba(0, 0, 0, 0.54);      /* parte carregada */
+  --player-track-played:     rgba(0, 0, 0, 0.87);      /* parte reproduzida */
+  --player-seek-padding-inline: 1rem;                  /* 16px */
+  --player-thumb-size:       0.75rem;                  /* 12px */
+  --player-thumb-bg:         rgba(0, 0, 0, 0.87);
+  --player-thumb-glow:       0 0 0.625rem #ffffff;     /* 10px */
+  --player-volume-slider-width: 3.25rem;               /* 52px */
+  --player-volume-slider-offset: 1rem;                 /* 16px, à esquerda do slider */
+
+  /* Menu de velocidade */
+  --player-menu-width:       12.5rem;                  /* 200px */
+  --player-menu-bg:          #ffffff;
+  --player-menu-radius:      0.125rem;                 /* 2px */
+  --player-menu-shadow:      0 0.0625rem 0.5625rem 0 rgba(0, 0, 0, 0.4); /* 0 1px 9px */
+  --player-menu-item-height: 3rem;                     /* 48px */
+  --player-menu-item-padding-start: 3.625rem;          /* 58px */
+  --player-menu-font-size:   0.75rem;                  /* 12px */
+  --player-menu-item-active-bg: #e0e0e0;
+  --player-menu-check-size:  1.125rem;                 /* 18px */
+  --player-menu-check-end:   1.9375rem;                /* 31px da borda direita */
+  /* O Chrome usa #4285f4, que tem 2,7:1 sobre o cinza #e0e0e0. Escurecido o
+     mínimo para chegar a 3:1 (WCAG 1.4.11): 3,1:1. */
+  --player-menu-check:       #3d7ce3;
+}
+
+/* Largura máxima do player por breakpoint (pedido). O player encolhe em
+   contêineres menores (min-width: min(--player-min-width, 100%)). */
+@media (min-width: 48rem) {
+  :root {
+    --player-max-width:      21.5rem;                  /* 344px, Tablet */
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --player-max-width:      22.5rem;                  /* 360px, Desktop */
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Tema (collection theme)
+   Light é o padrão. Aplique .theme-dark no wrapper das seções em Dark
+   (o Footer, por exemplo, está em Dark no Figma).
+   -------------------------------------------------------------------------- */
+:root,
+.theme-light {
+  --color-background-default:    var(--color-white);
+  --color-background-inverse:    var(--color-black);
+  --color-foreground-default:    var(--color-black);
+  --color-foreground-secondary:  var(--color-gray-800);
+  --color-foreground-inverse:    var(--color-white);
+  --color-foreground-brand:      #607490;
+  --color-border-default:        var(--color-gray-100);
+  --color-border-strong:         var(--color-gray-200);
+  --color-border-subtle:         var(--color-gray-50);
+  --color-border-inverse:        var(--color-gray-800);
+  --color-opacity-default-20:    color-mix(in srgb, var(--color-white) 20%, transparent);
+  --color-opacity-default-40:    color-mix(in srgb, var(--color-white) 40%, transparent);
+  --color-opacity-neutral-20:    color-mix(in srgb, var(--color-black) 20%, transparent);
+  --color-opacity-neutral-40:    color-mix(in srgb, var(--color-black) 40%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   Overlay do modal da obra
+   Não vem do Figma (pedido no ajuste 4.3): o preto do projeto com 90% de
+   opacidade. Usado no próprio <dialog>.
+   -------------------------------------------------------------------------- */
+:root {
+  --overlay-bg: color-mix(in srgb, var(--color-black) 90%, transparent);
+}
+
+/* Sem override em Dark (iguais ao Light): --color-background-inverse, --color-foreground-inverse, --color-opacity-default-20, --color-opacity-default-40 */
+.theme-dark {
+  --color-background-default:    var(--color-black);
+  --color-foreground-default:    var(--color-white);
+  --color-foreground-secondary:  var(--color-gray-50);
+  --color-foreground-brand:      #a3b0c2;
+  --color-border-default:        var(--color-gray-50);
+  --color-border-strong:         var(--color-gray-100);
+  --color-border-subtle:         var(--color-white);
+  --color-border-inverse:        var(--color-gray-700);
+  --color-opacity-neutral-20:    color-mix(in srgb, var(--color-white) 20%, transparent);
+  --color-opacity-neutral-40:    color-mix(in srgb, var(--color-white) 40%, transparent);
+}
