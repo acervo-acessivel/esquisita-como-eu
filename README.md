@@ -31,13 +31,13 @@ HTML, CSS e JavaScript puro, sem frameworks. Layout responsivo em três breakpoi
 
 **Inessa Luerce**
 - Adaptação de textos para linguagem simples
-- Construção da audiodescrição
+- Construção das audiodescrições
 - Design e desenvolvimento do site
 
 **Thaina Santos**
 - Adaptação de textos para linguagem simples
-- Construção da audiodescrição
-- Gravação da audiodescrição
+- Construção das audiodescrições
+- Gravação das audiodescrições
 - Modelagem 3D
 - Diagramação de material impresso.
 
