@@ -906,6 +906,11 @@ html.is-modal-open {
 .accordion-item {
   container-type: inline-size;
   --accordion-pad: var(--spacing-3); /* Mobile: 24 */
+  /* Espaço reservado à direita do painel: largura do ícone (1em, com
+     font-size = --typography-xl) + gap entre título e ícone (column-gap
+     do button, --spacing-2). Mantém o painel alinhado à borda esquerda
+     do ícone, com o mesmo respiro do título. */
+  --accordion-icon-space: calc(var(--typography-xl) + var(--spacing-2));
 
   border-bottom: 1px solid var(--color-border-default); /* sem token: 1px */
 }
@@ -990,10 +995,17 @@ html.is-modal-open {
 }
 
 .accordion-item__content p {
-  /* content-box: os 65ch valem para o texto, sem contar o padding */
-  box-sizing: content-box;
-  max-width: 65ch;
-  padding: 0 var(--spacing-8) calc(var(--accordion-pad) - 1px) 0;
+  padding: 0 var(--accordion-icon-space) calc(var(--accordion-pad) - 1px) 0;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+/* Telas muito estreitas: sem espaço para recolher a coluna, o painel usa a
+   largura total (até a linha divisória) em vez do recuo alinhado ao ícone */
+@media (max-width: 480px) {
+  .accordion-item__content p {
+    padding-right: 0;
+  }
 }
 
 .js .accordion-item__answer {
