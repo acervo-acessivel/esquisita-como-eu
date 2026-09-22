@@ -28,10 +28,19 @@ Discentes: Inessa Luerce, Thainá Santos
 HTML, CSS e JavaScript puro, sem frameworks. Layout responsivo em três breakpoints (375, 800 e 1440px), design no Figma.
 
 ## Contribuições
-| Nome | Papel | Contato |
-|:-----|:------|:--------|
-| Inessa&nbsp;Luerce | • Adaptação para linguagem simples<br>• Construção da audiodescrição<br>• Design e desenvolvimento do site | [LinkedIn](https://www.linkedin.com/in/inessadl/) |
-| Thaina&nbsp;Santos | • Adaptação para linguagem simples<br>• Construção da audiodescrição<br>• Gravação da audiodescrição<br>• Modelagem 3D<br>• Diagramação de material impresso | [LinkedIn](https://www.linkedin.com/in/thain%C3%A1-gabriela-s-760b84115/) |
+
+**Inessa Luerce**
+- Adaptação de textos para linguagem simples
+- Construção da audiodescrição
+- Design e desenvolvimento do site
+
+**Thaina Santos**
+- Adaptação de textos para linguagem simples
+- Construção da audiodescrição
+- Gravação da audiodescrição
+- Modelagem 3D
+- Diagramação de material impresso.
+
 
 ## Créditos
 Obra *Esquisita Como Eu* © Laura Castilhos. Ilustrações e textos usados com fins acadêmicos.
