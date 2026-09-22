@@ -182,6 +182,84 @@
 }
 
 /* --------------------------------------------------------------------------
+   Player de áudio (--player-*)
+   Estes valores NÃO vêm do Figma nem seguem os tokens do site. Vêm do player
+   nativo de áudio do Chrome, medidos com o DevTools (estilos computados do
+   shadow DOM de <audio controls>) e conferidos com capturas de tela. O
+   player próprio (js/main.js + components.css) os usa para ficar igual ao
+   do Chrome em qualquer navegador.
+   Exceções: --player-target-size e --player-focus-ring são requisitos de
+   acessibilidade, e --player-menu-check foi escurecido (ver abaixo).
+   -------------------------------------------------------------------------- */
+:root {
+  /* Pílula */
+  --player-height:           3.375rem;                 /* 54px */
+  --player-radius:           6.25rem;                  /* 100px */
+  --player-bg:               #f1f3f4;
+  --player-padding-inline:   1.125rem;                 /* 18px: 10px do Chrome + 8px (pedido) */
+  --player-min-width:        18.75rem;                 /* 300px (pedido) */
+  --player-max-width:        20rem;                    /* 320px, Mobile (pedido). Tablet e Desktop: abaixo */
+  --player-compact-width:    20rem;                    /* abaixo disso o tempo mostra só o atual (usado em @container, que não aceita var()) */
+
+  /* Texto (tempo e velocidade) */
+  --player-font-family:      Roboto-Regular, Roboto, sans-serif;
+  --player-font-size:        0.875rem;                 /* 14px */
+  --player-fg:               rgba(0, 0, 0, 0.87);
+  --player-time-gap:         0.3125rem;                /* 5px, antes do tempo atual */
+  --player-time-gap-duration: 0.25rem;                 /* 4px, antes da duração */
+
+  /* Botões */
+  --player-button-size:      2rem;                     /* 32px (parte visível) */
+  --player-icon-size:        1.25rem;                  /* 20px */
+  --player-icon-color:       #000000;
+  --player-hover-bg:         rgba(32, 33, 36, 0.06);
+  --player-target-size:      2.75rem;                  /* 44px: área de toque (acessibilidade, não vem do Chrome) */
+  --player-focus-ring:       #1a1a1a;                  /* anel de foco (acessibilidade, não vem do Chrome) */
+
+  /* Barra de progresso e volume */
+  --player-track-height:     0.25rem;                  /* 4px */
+  --player-track-radius:     0.125rem;                 /* 2px */
+  --player-track-bg:         rgba(0, 0, 0, 0.2);       /* parte não carregada */
+  --player-track-buffered:   rgba(0, 0, 0, 0.54);      /* parte carregada */
+  --player-track-played:     rgba(0, 0, 0, 0.87);      /* parte reproduzida */
+  --player-seek-padding-inline: 1rem;                  /* 16px */
+  --player-thumb-size:       0.75rem;                  /* 12px */
+  --player-thumb-bg:         rgba(0, 0, 0, 0.87);
+  --player-thumb-glow:       0 0 0.625rem #ffffff;     /* 10px */
+  --player-volume-slider-width: 3.25rem;               /* 52px */
+  --player-volume-slider-offset: 1rem;                 /* 16px, à esquerda do slider */
+
+  /* Menu de velocidade */
+  --player-menu-width:       12.5rem;                  /* 200px */
+  --player-menu-bg:          #ffffff;
+  --player-menu-radius:      0.125rem;                 /* 2px */
+  --player-menu-shadow:      0 0.0625rem 0.5625rem 0 rgba(0, 0, 0, 0.4); /* 0 1px 9px */
+  --player-menu-item-height: 3rem;                     /* 48px */
+  --player-menu-item-padding-start: 3.625rem;          /* 58px */
+  --player-menu-font-size:   0.75rem;                  /* 12px */
+  --player-menu-item-active-bg: #e0e0e0;
+  --player-menu-check-size:  1.125rem;                 /* 18px */
+  --player-menu-check-end:   1.9375rem;                /* 31px da borda direita */
+  /* O Chrome usa #4285f4, que tem 2,7:1 sobre o cinza #e0e0e0. Escurecido o
+     mínimo para chegar a 3:1 (WCAG 1.4.11): 3,1:1. */
+  --player-menu-check:       #3d7ce3;
+}
+
+/* Largura máxima do player por breakpoint (pedido). O player encolhe em
+   contêineres menores (min-width: min(--player-min-width, 100%)). */
+@media (min-width: 48rem) {
+  :root {
+    --player-max-width:      21.5rem;                  /* 344px, Tablet */
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --player-max-width:      22.5rem;                  /* 360px, Desktop */
+  }
+}
+
+/* --------------------------------------------------------------------------
    Tema (collection theme)
    Light é o padrão. Aplique .theme-dark no wrapper das seções em Dark
    (o Footer, por exemplo, está em Dark no Figma).

@@ -189,130 +189,342 @@ a.logo::after {
 }
 
 /* --------------------------------------------------------------------------
-   AudioPlayer (Hero e Artist)
-   Padrão: variante Color=dark (fundo escuro). No Artist é Color=light.
-   Ícones: os SVGs de assets/icons vêm com fill #494949 (gray/800); no fundo
-   escuro o filtro os deixa brancos (foreground/inverse).
+   Player de áudio (Hero e Artist): um componente só
+   Replica o player nativo de áudio do Chrome (valores --player-* em
+   tokens.css, medidos no Chrome, não vêm do Figma nem dos tokens do site).
+   O js/main.js monta o player a partir de <div class="audio-player"> + <audio>.
+   Sem JS, aparece o <audio controls> nativo.
+
+   .audio-player          container (largura e container query)
+   .player                pílula
+   .player__btn           botão redondo de 32px com área de toque de 44px
+   .player__seek          <input type="range"> do progresso
+   .player__volume        grupo: slider (só com hover) + botão de mudo
+   .player__speed         botão de velocidade + menu
    -------------------------------------------------------------------------- */
 .audio-player {
-  --audio-track: var(--color-opacity-default-40);
-
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--spacing-1) var(--spacing-1_5);
-  max-width: 100%;
-  min-height: var(--target-min); /* Figma: 44 */
-  padding: var(--spacing-1) var(--spacing-2);
-  border: 0.5px solid var(--color-border-default); /* sem token: stroke 0,5 */
-  border-radius: 99px; /* sem token: pill */
-  background: var(--color-opacity-default-20);
-  -webkit-backdrop-filter: blur(4px); /* sem token: efeito GLASS blur 4 */
-  backdrop-filter: blur(4px);
-  color: var(--color-foreground-inverse);
-  font-family: var(--typography-font-family-controls), sans-serif;
-  font-size: var(--typography-md);
-  line-height: 1; /* sem token: 100% */
-}
-
-/* Sem JS: o player nativo (<audio controls>) no lugar dos controles do desenho.
-   Com JS (classe .js), o <audio> fica escondido e os botões assumem. */
-html:not(.js) .audio-player {
-  padding: 0;
-  border: 0;
-  background: none;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-
-html:not(.js) .audio-player > :not(audio) {
-  display: none;
+  container: player / inline-size;
+  width: 100%;
+  min-width: min(var(--player-min-width), 100%);
+  max-width: var(--player-max-width);
 }
 
 html.js .audio-player audio {
   display: none;
 }
 
-.audio-player .icon {
-  width: var(--spacing-3);
-  height: var(--spacing-3);
-  filter: brightness(0) invert(1);
+.audio-player audio {
+  width: 100%;
 }
 
-.audio-player__transport {
+.player {
   display: flex;
   align-items: center;
-  gap: var(--spacing-1);
+  height: var(--player-height);
+  padding-inline: var(--player-padding-inline);
+  border-radius: var(--player-radius);
+  background: var(--player-bg);
+  color: var(--player-fg);
+  font-family: var(--player-font-family);
+  font-size: var(--player-font-size);
+  line-height: normal; /* como o Chrome (16px de altura com a fonte de fallback) */
 }
 
-.audio-player__time {
-  display: flex;
-  gap: var(--spacing-0_5);
-  white-space: nowrap;
+.player :focus-visible {
+  outline: 2px solid var(--player-focus-ring);
+  outline-offset: 2px;
 }
 
-/* Botões de 24px com área de toque de 44px, sem mudar o desenho */
-.audio-player__play,
-.audio-player__mute,
-.audio-player__speed {
+/* Botões redondos: 32px visíveis, 44px de área de toque (::after) */
+.player__btn {
   position: relative;
-  display: grid;
   flex: none;
+  display: grid;
   place-items: center;
-  width: var(--spacing-3);
-  height: var(--spacing-3);
+  width: var(--player-button-size);
+  height: var(--player-button-size);
+  padding: 0;
+  border-radius: 50%;
+  color: var(--player-icon-color);
 }
 
-.audio-player__play::after,
-.audio-player__mute::after,
-.audio-player__speed::after {
+.player__btn::after,
+.player__speed-btn::after {
   content: "";
   position: absolute;
-  inset: calc(var(--spacing-2_5) / -2);
+  inset: calc((var(--player-button-size) - var(--player-target-size)) / 2);
 }
 
-.audio-player__speed {
-  line-height: var(--spacing-3);
+.player__btn:hover,
+.player__speed-btn:hover {
+  background: var(--player-hover-bg);
+}
+
+.player__btn svg {
+  width: var(--player-icon-size);
+  height: var(--player-icon-size);
+  fill: currentColor;
+}
+
+/* Tempo */
+.player__time {
+  display: flex;
+  flex: none;
+  margin-inline-start: var(--player-time-gap);
+  /* Sobe 1px para alinhar a linha de base ao player nativo do Chrome */
+  margin-block-end: 0.125rem;
   white-space: nowrap;
 }
 
-/* Em telas estreitas a barra ocupa o espaço que sobra na linha */
-@media (max-width: 22.5rem) {
-  .audio-player__progress {
-    flex-grow: 1;
+.player__duration {
+  margin-inline-start: var(--player-time-gap-duration);
+}
+
+/* Barra de progresso e slider de volume: <input type="range"> sem aparência
+   nativa. --played e --buffered (porcentagens) vêm do JS. */
+.player__seek,
+.player__volume-range {
+  --played: 0%;
+  --buffered: 0%;
+
+  appearance: none;
+  -webkit-appearance: none;
+  height: var(--player-target-size);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.player__seek {
+  flex: 1 1 0;
+  min-width: 3rem;
+  padding-inline: var(--player-seek-padding-inline);
+}
+
+.player__seek:disabled {
+  cursor: default;
+}
+
+.player__seek::-webkit-slider-runnable-track,
+.player__volume-range::-webkit-slider-runnable-track {
+  height: var(--player-track-height);
+  border-radius: var(--player-track-radius);
+  background:
+    linear-gradient(var(--player-track-played), var(--player-track-played)) left / var(--played) 100% no-repeat,
+    linear-gradient(var(--player-track-buffered), var(--player-track-buffered)) left / var(--buffered) 100% no-repeat,
+    var(--player-track-bg);
+}
+
+.player__seek::-moz-range-track,
+.player__volume-range::-moz-range-track {
+  height: var(--player-track-height);
+  border-radius: var(--player-track-radius);
+  background:
+    linear-gradient(var(--player-track-played), var(--player-track-played)) left / var(--played) 100% no-repeat,
+    linear-gradient(var(--player-track-buffered), var(--player-track-buffered)) left / var(--buffered) 100% no-repeat,
+    var(--player-track-bg);
+}
+
+.player__seek::-webkit-slider-thumb,
+.player__volume-range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: var(--player-thumb-size);
+  height: var(--player-thumb-size);
+  margin-top: calc((var(--player-track-height) - var(--player-thumb-size)) / 2);
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-thumb-bg);
+  box-shadow: var(--player-thumb-glow);
+  opacity: 0;
+}
+
+.player__seek::-moz-range-thumb,
+.player__volume-range::-moz-range-thumb {
+  width: var(--player-thumb-size);
+  height: var(--player-thumb-size);
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-thumb-bg);
+  box-shadow: var(--player-thumb-glow);
+  opacity: 0;
+}
+
+/* O marcador aparece com mouse, foco e arraste (como no Chrome) */
+.player__seek:hover::-webkit-slider-thumb,
+.player__seek:focus-visible::-webkit-slider-thumb,
+.player__seek:active::-webkit-slider-thumb,
+.player__volume-range:hover::-webkit-slider-thumb,
+.player__volume-range:focus-visible::-webkit-slider-thumb,
+.player__volume-range:active::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.player__seek:hover::-moz-range-thumb,
+.player__seek:focus-visible::-moz-range-thumb,
+.player__seek:active::-moz-range-thumb,
+.player__volume-range:hover::-moz-range-thumb,
+.player__volume-range:focus-visible::-moz-range-thumb,
+.player__volume-range:active::-moz-range-thumb {
+  opacity: 1;
+}
+
+.player .player__seek:focus-visible,
+.player .player__volume-range:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0.5rem; /* sem token: só do anel de foco */
+}
+
+/* Volume: só o botão de mudo. Com hover (mouse), o slider aparece à
+   esquerda do ícone, dentro de uma pílula cinza um pouco mais escura, e a
+   barra de progresso encolhe. Em touch o slider não existe. */
+.player__volume {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: center;
+  height: var(--player-button-size);
+  border-radius: calc(var(--player-button-size) / 2);
+}
+
+.player__volume-slider {
+  display: none;
+}
+
+@media (hover: hover) {
+  .player__volume-slider {
+    display: flex;
+    align-items: center;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.15s ease-out; /* sem token: some com prefers-reduced-motion */
+  }
+
+  .player__volume:hover .player__volume-slider,
+  .player__volume:focus-within .player__volume-slider {
+    /* 16px + slider de 52px + 6px que separam o slider da área de toque do mudo */
+    width: calc(var(--player-volume-slider-offset) + var(--player-volume-slider-width) + (var(--player-target-size) - var(--player-button-size)) / 2);
+  }
+
+  .player__volume:hover,
+  .player__volume:focus-within {
+    background: var(--player-hover-bg);
+  }
+
+  .player__volume .player__btn:hover {
+    background: none;
+  }
+
+  .player__volume-range {
+    flex: none;
+    width: calc(var(--player-volume-slider-width) + var(--player-volume-slider-offset));
+    padding-inline-start: var(--player-volume-slider-offset);
   }
 }
 
-.audio-player__progress {
-  appearance: none;
-  -webkit-appearance: none;
-  flex: 0 1 5.5rem; /* sem token: 88px */
-  min-width: var(--spacing-5);
-  height: var(--spacing-0_5);
-  overflow: hidden;
-  border: 0;
-  border-radius: 99px; /* sem token: pill */
-  background: var(--audio-track);
-  color: transparent; /* esconde o texto de fallback "0%" */
+/* Velocidade */
+.player__speed {
+  position: relative;
+  flex: none;
+  /* 12px: cada área de toque avança 6px sobre o espaço, e as duas (mudo e
+     velocidade) ficam de 44px sem se sobrepor */
+  margin-inline-start: calc(var(--player-target-size) - var(--player-button-size));
 }
 
-.audio-player__progress::-webkit-progress-bar {
-  background: transparent;
+.player__speed-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: var(--player-button-size);
+  height: var(--player-button-size);
+  padding: 0 0.5rem; /* sem token */
+  border-radius: calc(var(--player-button-size) / 2);
+  color: inherit;
+  white-space: nowrap;
 }
 
-.audio-player__progress::-webkit-progress-value {
-  background: var(--audio-track);
+.player__menu {
+  position: absolute;
+  inset-inline-end: 0;
+  inset-block-start: calc(100% + 0.25rem); /* sem token */
+  z-index: 30;
+  width: var(--player-menu-width);
+  max-width: calc(100vw - 1rem);
+  padding: 0;
+  border-radius: var(--player-menu-radius);
+  background: var(--player-menu-bg);
+  box-shadow: var(--player-menu-shadow);
+  color: var(--player-fg);
+  font-family: var(--player-font-family);
+  font-size: var(--player-menu-font-size);
 }
 
-.audio-player__progress::-moz-progress-bar {
-  background: var(--audio-track);
+/* Sem espaço embaixo, o menu abre acima */
+.player__menu.is-above {
+  inset-block: auto calc(100% + 0.25rem);
 }
 
-.audio-player__options {
-  display: flex;
-  align-items: center;
-  margin-inline-start: auto; /* quando quebra de linha, fica à direita */
-  gap: var(--spacing-2_5); /* Figma: 8. Sobe para 20 para os alvos de 44px não se sobreporem */
+.player__menu-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--player-menu-item-height);
+  padding: 0 1rem 0 var(--player-menu-item-padding-start); /* sem token: 16px à direita */
+  background: var(--player-menu-bg);
+  color: inherit;
+  font: inherit;
+  line-height: var(--player-menu-item-height);
+  text-align: start;
+  cursor: pointer;
+}
+
+.player__menu-item:hover,
+.player__menu-item[aria-checked="true"] {
+  background: var(--player-menu-item-active-bg);
+}
+
+.player__menu-item:focus-visible {
+  outline-offset: -2px;
+}
+
+.player__menu-item svg {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--player-menu-check-end);
+  width: var(--player-menu-check-size);
+  height: var(--player-menu-check-size);
+  fill: var(--player-menu-check);
+  transform: translateY(-50%);
+  visibility: hidden;
+}
+
+.player__menu-item[aria-checked="true"] svg {
+  visibility: visible;
+}
+
+/* Player estreito (menos de 20rem = --player-compact-width): só o tempo
+   atual, sem a duração. O @container não aceita var(). */
+@container player (width < 20rem) {
+  .player__duration {
+    display: none;
+  }
+
+  /* Sem espaço para o slider de volume: fica só o botão de mudo, como no
+     player nativo do Chrome em larguras muito pequenas */
+  .player__volume-slider {
+    display: none;
+  }
+}
+
+/* Player de até 22rem (Mobile 320px e Tablet 344px): com o slider de volume
+   aberto, a barra de progresso ficaria sem espaço. Enquanto o volume está
+   aberto (hover ou foco), a duração some, como no player nativo do Chrome. */
+@media (hover: hover) {
+  @container player (width < 22rem) {
+    .player:has(.player__volume:hover, .player__volume:focus-within) .player__duration {
+      display: none;
+    }
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -493,10 +705,6 @@ html.js .audio-player audio {
   font-size: var(--typography-subtitle);
   font-weight: 400; /* sem token: Regular */
   line-height: 1.2; /* sem token */
-}
-
-.hero__content > .audio-player {
-  align-self: flex-start;
 }
 
 /* --------------------------------------------------------------------------
@@ -902,19 +1110,6 @@ html.js .audio-player audio {
   grid-row: 4;
 }
 
-/* Variante Color=light do AudioPlayer: Hero (Variation=b) e Artist */
-.hero .audio-player,
-.artist .audio-player {
-  --audio-track: var(--color-opacity-neutral-40);
-
-  color: var(--color-foreground-secondary);
-}
-
-.hero .audio-player .icon,
-.artist .audio-player .icon {
-  filter: none;
-}
-
 @media (min-width: 48rem) {
   .artist__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -1163,9 +1358,6 @@ html.js .audio-player audio {
    sumiriam. prefers-color-scheme acompanha o fundo do tema de alto contraste.
    -------------------------------------------------------------------------- */
 @media (forced-colors: active) {
-  .audio-player .icon,
-  .hero .audio-player .icon,
-  .artist .audio-player .icon,
   .obra__zoom img,
   .logo img {
     filter: brightness(0);
@@ -1177,16 +1369,37 @@ html.js .audio-player audio {
     background: CanvasText;
   }
 
-  .audio-player__progress {
+  /* Player: cores do sistema; os ícones (SVG com currentColor) e o texto
+     seguem sozinhos */
+  .player {
+    --player-bg: Canvas;
+    --player-fg: CanvasText;
+    --player-icon-color: CanvasText;
+    --player-track-bg: GrayText;
+    --player-track-buffered: CanvasText;
+    --player-track-played: Highlight;
+    --player-thumb-bg: CanvasText;
+    --player-thumb-glow: none;
+    --player-menu-bg: Canvas;
+    --player-menu-item-active-bg: Highlight;
+    --player-menu-check: CanvasText;
+
     border: 1px solid CanvasText;
   }
 
-  .audio-player__progress::-webkit-progress-value {
-    background: Highlight;
+  .player__seek,
+  .player__volume-range,
+  .player__menu {
+    forced-color-adjust: none;
   }
 
-  .audio-player__progress::-moz-progress-bar {
-    background: Highlight;
+  .player__menu {
+    border: 1px solid CanvasText;
+  }
+
+  .player__menu-item:hover,
+  .player__menu-item[aria-checked="true"] {
+    color: HighlightText;
   }
 
   .obra__zoom button:disabled {
@@ -1196,9 +1409,6 @@ html.js .audio-player audio {
 }
 
 @media (forced-colors: active) and (prefers-color-scheme: dark) {
-  .audio-player .icon,
-  .hero .audio-player .icon,
-  .artist .audio-player .icon,
   .obra__zoom img,
   .logo img {
     filter: brightness(0) invert(1);

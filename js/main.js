@@ -111,84 +111,260 @@
 
   /* ------------------------------------------------------------------------
      2. Player de áudio
-     Cada .audio-player controla o seu <audio>. Só um toca por vez.
+     Um componente só: cada <div class="audio-player"> com um <audio> ganha o
+     player montado aqui (o HTML tem só o <audio>, com controls para quando
+     não há JS). O visual replica o player nativo do Chrome (--player-*).
+     Só um áudio toca por vez, e a velocidade vale para todos.
      ---------------------------------------------------------------------- */
-  var RATES = [1, 1.5, 2];
+  var PATHS = {
+    play: 'M8 5v14l11-7z',
+    pause: 'M6 19h4V5H6v14zm8-14v14h4V5h-4z',
+    volumeOn: 'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z',
+    volumeOff: 'M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z',
+    check: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'
+  };
+  var RATES = [0.5, 0.75, 1, 1.25, 1.5];
+  var SEEK_STEP = 5; // segundos por seta
   var players = [];
+  var currentRate = 1;
+  var openMenuOwner = null;
+  var uid = 0;
 
-  function formatTime(seconds) {
-    if (!isFinite(seconds)) return '0:00';
-    var s = Math.floor(seconds % 60);
-    return Math.floor(seconds / 60) + ':' + (s < 10 ? '0' : '') + s;
+  function svg(path, hidden) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"' + (hidden ? ' hidden' : '') +
+      '><path d="' + path + '"/></svg>';
   }
 
-  function isoDuration(seconds) {
-    if (!isFinite(seconds)) return 'PT0M0S';
-    return 'PT' + Math.floor(seconds / 60) + 'M' + Math.floor(seconds % 60) + 'S';
+  function formatTime(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    var t = Math.floor(seconds);
+    var h = Math.floor(t / 3600);
+    var m = Math.floor((t % 3600) / 60);
+    var s = t % 60;
+    var ss = (s < 10 ? '0' : '') + s;
+    return h ? h + ':' + (m < 10 ? '0' : '') + m + ':' + ss : m + ':' + ss;
+  }
+
+  function plural(n, one, many) {
+    return n + ' ' + (n === 1 ? one : many);
+  }
+
+  // "1 minuto e 20 segundos", "3 minutos", "20 segundos"
+  function spoken(seconds) {
+    if (!isFinite(seconds) || seconds < 0) seconds = 0;
+    var t = Math.floor(seconds);
+    var h = Math.floor(t / 3600);
+    var m = Math.floor((t % 3600) / 60);
+    var s = t % 60;
+    var parts = [];
+    if (h) parts.push(plural(h, 'hora', 'horas'));
+    if (m) parts.push(plural(m, 'minuto', 'minutos'));
+    if (s || !parts.length) parts.push(plural(s, 'segundo', 'segundos'));
+    return parts.length > 1 ? parts.slice(0, -1).join(', ') + ' e ' + parts[parts.length - 1] : parts[0];
+  }
+
+  function rateLabel(rate) {
+    return rate === 1 ? 'Normal' : String(rate);
   }
 
   function rateText(rate) {
-    return String(rate).replace('.', ',') + 'x';
+    return String(rate) + 'x';
+  }
+
+  function keepPitch(audio) {
+    if ('preservesPitch' in audio) audio.preservesPitch = true;
+    if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = true;
+    if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = true;
   }
 
   function setupPlayer(root) {
     var audio = root.querySelector('audio');
-    var playBtn = root.querySelector('.audio-player__play');
-    var muteBtn = root.querySelector('.audio-player__mute');
-    var speedBtn = root.querySelector('.audio-player__speed');
-    var progress = root.querySelector('.audio-player__progress');
-    var times = root.querySelectorAll('.audio-player__time time');
-    if (!audio || !playBtn) return null;
+    if (!audio) return null;
 
-    audio.removeAttribute('controls');
+    var n = ++uid;
     var name = root.getAttribute('data-audio-name') || 'áudio';
-    var rateIndex = 0;
+    if (!audio.id) audio.id = 'audio-' + n;
+    var menuId = 'player-menu-' + n;
+    audio.removeAttribute('controls');
 
-    function swapIcons(button, showFirst) {
-      var icons = button.querySelectorAll('.icon');
-      if (icons.length < 2) return;
-      icons[0].hidden = !showFirst;
-      icons[1].hidden = showFirst;
+    var items = RATES.map(function (rate) {
+      return '<button type="button" class="player__menu-item" role="menuitemradio" aria-checked="false"' +
+        ' tabindex="-1" data-rate="' + rate + '">' + rateLabel(rate) + svg(PATHS.check) + '</button>';
+    }).join('');
+
+    root.insertAdjacentHTML('beforeend',
+      '<div class="player">' +
+        '<button type="button" class="player__btn player__play" aria-pressed="false" aria-controls="' + audio.id + '">' +
+          svg(PATHS.play) + svg(PATHS.pause, true) +
+        '</button>' +
+        '<span class="player__time"><span class="player__current">0:00</span><span class="player__duration">/ 0:00</span></span>' +
+        '<input type="range" class="player__seek" aria-label="Progresso do áudio" min="0" max="0" step="any" value="0" disabled>' +
+        '<div class="player__volume" role="group" aria-label="Controle de volume">' +
+          '<div class="player__volume-slider">' +
+            '<input type="range" class="player__volume-range" aria-label="Volume" min="0" max="1" step="0.05" value="1">' +
+          '</div>' +
+          '<button type="button" class="player__btn player__mute" aria-pressed="false" aria-controls="' + audio.id + '">' +
+            svg(PATHS.volumeOn) + svg(PATHS.volumeOff, true) +
+          '</button>' +
+        '</div>' +
+        '<div class="player__speed">' +
+          '<button type="button" class="player__speed-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="' + menuId + '">1x</button>' +
+          '<div class="player__menu" id="' + menuId + '" role="menu" aria-label="Velocidade de reprodução" hidden>' + items + '</div>' +
+        '</div>' +
+      '</div>');
+
+    var playBtn = root.querySelector('.player__play');
+    var current = root.querySelector('.player__current');
+    var duration = root.querySelector('.player__duration');
+    var seek = root.querySelector('.player__seek');
+    var volRange = root.querySelector('.player__volume-range');
+    var muteBtn = root.querySelector('.player__mute');
+    var speedRoot = root.querySelector('.player__speed');
+    var speedBtn = root.querySelector('.player__speed-btn');
+    var menu = root.querySelector('.player__menu');
+    var menuItems = [].slice.call(menu.querySelectorAll('.player__menu-item'));
+    var scrubbing = false;
+    var lastSecond = -1;
+
+    function toggleIcons(button, first) {
+      var icons = button.querySelectorAll('svg');
+      // svg não tem a propriedade .hidden: usa o atributo
+      icons[0].toggleAttribute('hidden', !first);
+      icons[1].toggleAttribute('hidden', first);
+    }
+
+    function setPercent(el, prop, value, total) {
+      var pct = total > 0 ? Math.min(100, Math.max(0, (value / total) * 100)) : 0;
+      el.style.setProperty(prop, pct.toFixed(2) + '%');
+    }
+
+    function bufferedEnd() {
+      var b = audio.buffered;
+      var t = audio.currentTime;
+      for (var i = 0; i < b.length; i++) {
+        if (b.start(i) <= t + 0.5 && t <= b.end(i) + 0.5) return b.end(i);
+      }
+      return t;
+    }
+
+    function updateBuffered() {
+      var d = audio.duration;
+      if (isFinite(d) && d > 0) setPercent(seek, '--buffered', Math.max(bufferedEnd(), audio.currentTime), d);
+    }
+
+    function updateSeek(force) {
+      var t = audio.currentTime;
+      var d = audio.duration;
+      current.textContent = formatTime(t);
+      seek.value = t;
+      setPercent(seek, '--played', t, d);
+      var sec = Math.floor(t);
+      if (force || sec !== lastSecond) {
+        lastSecond = sec;
+        seek.setAttribute('aria-valuetext', spoken(t) + ' de ' + spoken(isFinite(d) ? d : 0));
+      }
+    }
+
+    function updateDuration() {
+      var d = audio.duration;
+      var ok = isFinite(d) && d > 0;
+      duration.textContent = '/ ' + formatTime(ok ? d : 0);
+      seek.max = ok ? d : 0;
+      seek.disabled = !ok;
+      updateSeek(true);
+      updateBuffered();
     }
 
     function setPlaying(playing) {
       playBtn.setAttribute('aria-pressed', String(playing));
       playBtn.setAttribute('aria-label', (playing ? 'Pausar ' : 'Ouvir ') + name);
-      swapIcons(playBtn, !playing); // play.svg parado, pause.svg tocando
+      toggleIcons(playBtn, !playing); // play parado, pause tocando
     }
 
-    function setMuted(muted) {
-      if (!muteBtn) return;
+    function syncVolume() {
+      var muted = audio.muted;
+      var v = muted ? 0 : audio.volume;
       muteBtn.setAttribute('aria-pressed', String(muted));
       muteBtn.setAttribute('aria-label', muted ? 'Ativar som' : 'Silenciar áudio');
-      swapIcons(muteBtn, !muted); // volume-on.svg com som, volume-off.svg mudo
+      toggleIcons(muteBtn, !muted); // volume ligado, volume desligado
+      volRange.value = v;
+      setPercent(volRange, '--played', v, 1);
+      volRange.setAttribute('aria-valuetext', Math.round(v * 100) + '%');
     }
 
-    function setSpeed() {
-      var rate = RATES[rateIndex];
+    function setRate(rate) {
+      currentRate = rate;
       audio.playbackRate = rate;
-      if (!speedBtn) return;
+      keepPitch(audio);
       speedBtn.textContent = rateText(rate);
-      speedBtn.setAttribute('aria-label', 'Velocidade de reprodução: ' + rateText(rate));
+      speedBtn.setAttribute('aria-label', 'Velocidade: ' + rateText(rate));
+      menuItems.forEach(function (item) {
+        item.setAttribute('aria-checked', String(parseFloat(item.getAttribute('data-rate')) === rate));
+      });
     }
 
-    function updateTime() {
-      if (times[0]) {
-        times[0].textContent = formatTime(audio.currentTime);
-        times[0].setAttribute('datetime', isoDuration(audio.currentTime));
-      }
-      if (progress && audio.duration) {
-        progress.value = (audio.currentTime / audio.duration) * 100;
-      }
+    /* ---- menu de velocidade (padrão menu button) ---- */
+    function focusItem(item) {
+      menuItems.forEach(function (i) { i.tabIndex = -1; });
+      item.tabIndex = 0;
+      item.focus();
     }
 
-    function updateDuration() {
-      if (times[1] && isFinite(audio.duration)) {
-        times[1].textContent = formatTime(audio.duration);
-        times[1].setAttribute('datetime', isoDuration(audio.duration));
-      }
+    function checkedItem() {
+      return menuItems.filter(function (i) { return i.getAttribute('aria-checked') === 'true'; })[0] || menuItems[0];
     }
 
+    function openMenu(target) {
+      if (openMenuOwner && openMenuOwner !== api) openMenuOwner.closeMenu(false);
+      menu.hidden = false;
+      speedBtn.setAttribute('aria-expanded', 'true');
+      openMenuOwner = api;
+      // abre abaixo; se não couber e houver mais espaço em cima, abre acima
+      menu.classList.remove('is-above');
+      var rect = speedBtn.getBoundingClientRect();
+      var need = menu.offsetHeight + 8;
+      var below = window.innerHeight - rect.bottom;
+      if (below < need && rect.top > below) menu.classList.add('is-above');
+      focusItem(target === 'last' ? menuItems[menuItems.length - 1] : checkedItem());
+    }
+
+    function closeMenu(returnFocus) {
+      if (menu.hidden) return;
+      menu.hidden = true;
+      speedBtn.setAttribute('aria-expanded', 'false');
+      if (openMenuOwner === api) openMenuOwner = null;
+      if (returnFocus) speedBtn.focus();
+    }
+
+    speedBtn.addEventListener('click', function () {
+      if (menu.hidden) openMenu('checked');
+      else closeMenu(false);
+    });
+
+    speedBtn.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); openMenu('checked'); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); openMenu('last'); }
+      else if (e.key === 'Escape' && !menu.hidden) { e.preventDefault(); closeMenu(true); }
+    });
+
+    menu.addEventListener('keydown', function (e) {
+      var i = menuItems.indexOf(document.activeElement);
+      if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(menuItems[(i + 1) % menuItems.length]); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(menuItems[(i - 1 + menuItems.length) % menuItems.length]); }
+      else if (e.key === 'Home') { e.preventDefault(); focusItem(menuItems[0]); }
+      else if (e.key === 'End') { e.preventDefault(); focusItem(menuItems[menuItems.length - 1]); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); }
+      else if (e.key === 'Tab') closeMenu(false); // o foco segue o Tab
+    });
+
+    menuItems.forEach(function (item) {
+      item.addEventListener('click', function () {
+        applyRate(parseFloat(item.getAttribute('data-rate')));
+        closeMenu(true);
+      });
+    });
+
+    /* ---- reprodução ---- */
     playBtn.addEventListener('click', function () {
       if (!audio.paused) {
         audio.pause();
@@ -200,17 +376,45 @@
       }
     });
 
-    if (muteBtn) {
-      muteBtn.addEventListener('click', function () { audio.muted = !audio.muted; });
-    }
+    /* ---- progresso: clique, arraste e setas (5 s por passo) ---- */
+    seek.addEventListener('pointerdown', function () { scrubbing = true; });
+    window.addEventListener('pointerup', function () { scrubbing = false; });
+    window.addEventListener('pointercancel', function () { scrubbing = false; });
 
-    if (speedBtn) {
-      speedBtn.addEventListener('click', function () {
-        rateIndex = (rateIndex + 1) % RATES.length;
-        setSpeed();
-      });
-    }
+    seek.addEventListener('input', function () {
+      audio.currentTime = parseFloat(seek.value);
+      updateSeek(true);
+      updateBuffered();
+    });
 
+    seek.addEventListener('keydown', function (e) {
+      var dir = 0;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') dir = 1;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') dir = -1;
+      if (!dir || !audio.duration) return;
+      e.preventDefault();
+      audio.currentTime = Math.min(audio.duration, Math.max(0, audio.currentTime + dir * SEEK_STEP));
+      updateSeek(true);
+      updateBuffered();
+    });
+
+    /* ---- volume ---- */
+    muteBtn.addEventListener('click', function () {
+      if (audio.muted) {
+        audio.muted = false;
+        if (audio.volume === 0) audio.volume = 1;
+      } else {
+        audio.muted = true;
+      }
+    });
+
+    volRange.addEventListener('input', function () {
+      var v = parseFloat(volRange.value);
+      audio.volume = v;
+      audio.muted = v === 0;
+    });
+
+    /* ---- eventos do <audio> ---- */
     audio.addEventListener('play', function () {
       setPlaying(true);
       players.forEach(function (p) {
@@ -223,16 +427,33 @@
       audio.currentTime = 0;
     });
     audio.addEventListener('error', function () { setPlaying(false); });
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('timeupdate', function () {
+      if (!scrubbing) updateSeek(false);
+      updateBuffered();
+    });
+    audio.addEventListener('progress', updateBuffered);
+    audio.addEventListener('loadedmetadata', function () {
+      audio.playbackRate = currentRate; // o navegador zera ao carregar
+      keepPitch(audio);
+      updateDuration();
+    });
     audio.addEventListener('durationchange', updateDuration);
-    audio.addEventListener('volumechange', function () { setMuted(audio.muted); });
+    audio.addEventListener('volumechange', syncVolume);
+    audio.addEventListener('ratechange', function () {
+      if (audio.playbackRate !== currentRate) audio.playbackRate = currentRate;
+    });
+
+    var api = { audio: audio, setRate: setRate, closeMenu: closeMenu, speedRoot: speedRoot };
 
     setPlaying(false);
-    setMuted(audio.muted);
-    setSpeed();
+    syncVolume();
+    setRate(currentRate);
+    updateDuration();
+    return api;
+  }
 
-    return { audio: audio };
+  function applyRate(rate) {
+    players.forEach(function (p) { p.setRate(rate); });
   }
 
   function initAudio() {
@@ -240,6 +461,11 @@
       var player = setupPlayer(root);
       if (player) players.push(player);
     });
+
+    // clicar fora fecha o menu de velocidade
+    document.addEventListener('pointerdown', function (e) {
+      if (openMenuOwner && !openMenuOwner.speedRoot.contains(e.target)) openMenuOwner.closeMenu(false);
+    }, true);
   }
 
   /* ------------------------------------------------------------------------
