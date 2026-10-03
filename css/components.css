@@ -1,31 +1,7 @@
-/* ==========================================================================
-   Esquisita como eu — Componentes (etapa 3)
 
-   Usa apenas os tokens de css/tokens.css. Mobile-first: Mobile no padrão,
-   Tablet em (min-width: 48rem), Desktop em (min-width: 64rem).
-
-   Ordem: base · container · logo · player · navbar · hero · a11y · ficha ·
-   artist · footer.
-
-   Valores que NÃO são token (não há variable no Figma) aparecem literais e
-   marcados com "sem token". São só de 4 tipos:
-     - propriedades de estilo de texto (peso, altura de linha, tracking);
-     - raio de borda e espessura de traço;
-     - tamanhos fracionários do Logo e o padding de 112px do Footer;
-     - o alvo de toque mínimo de 44px, que vem do requisito de
-       acessibilidade e não do Figma.
-   Detalhe e justificativa: docs/etapa-3-componentes.md
-   ========================================================================== */
-
-/* --------------------------------------------------------------------------
-   Base
-   -------------------------------------------------------------------------- */
 :root {
-  /* Requisito de acessibilidade (44 × 44 px), não vem do Figma */
   --target-min: 2.75rem;
 
-  /* Movimento: o Figma e o tokens.css não têm duração nem easing. Valores
-     que o CSS já usava (0,2s ease-out no ícone do acordeão) */
   --motion-duration: 0.2s;
   --motion-ease: ease-out;
 }
@@ -42,7 +18,7 @@ body {
   color: var(--color-foreground-default);
   font-family: var(--typography-font-family-body), sans-serif;
   font-size: var(--typography-sm);
-  line-height: 1.4; /* sem token: Styles/body/sm */
+  line-height: 1.4;
 }
 
 h1,
@@ -55,9 +31,6 @@ ul {
   margin: 0;
 }
 
-/* Valores da ficha (dt e dd) podem quebrar palavras longas. Os headings
-   (h1, h2, h3) nunca quebram palavras: quando não cabem, encolhem (ver
-   "Títulos: redução só quando necessário", no fim do arquivo). */
 dt,
 dd {
   overflow-wrap: anywhere;
@@ -92,7 +65,6 @@ button {
   display: none !important;
 }
 
-/* Texto só para leitor de tela (região de status do zoom) */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -105,10 +77,6 @@ button {
   white-space: nowrap;
 }
 
-/* Container: limita a largura do conteúdo e mantém as margens laterais do
-   Figma como padding. Os fundos ficam nas seções (header, section, footer),
-   que continuam com 100% da largura. Até 90rem (1440px) não muda nada: o
-   max-width só passa a valer acima disso. */
 .container {
   width: 100%;
   max-width: var(--layout-max-width);
@@ -116,18 +84,15 @@ button {
   padding-inline: var(--margin-left) var(--margin-right);
 }
 
-/* Foco visível. A cor troca em fundos escuros (navbar, footer, botões de zoom) */
 :focus-visible {
   outline: var(--spacing-4xs) solid var(--focus-ring, var(--color-foreground-default));
   outline-offset: var(--spacing-4xs);
 }
 
-/* main só recebe foco por script (destino do skip link): sem anel */
 main:focus {
   outline: none;
 }
 
-/* Skip link: fora da tela até receber foco */
 .skip-link {
   position: absolute;
   z-index: 10;
@@ -139,7 +104,7 @@ main:focus {
   padding: 0 var(--spacing-2);
   background: var(--color-background-inverse);
   color: var(--color-foreground-inverse);
-  font-weight: 600; /* sem token: Styles/body/sm/semibold */
+  font-weight: 600;
   text-decoration: none;
   transform: translateY(-100%);
 }
@@ -150,21 +115,12 @@ main:focus {
   outline-offset: calc(var(--spacing-4xs) * -2);
 }
 
-/* Alvo de toque do acordeão (os botões do player têm área própria, abaixo) */
 .accordion-item__title button {
   min-height: var(--target-min);
 }
 
-/* --------------------------------------------------------------------------
-   Logo (usado no Navbar e no Footer)
-   Imagem SVG (assets/images/logo.svg), com traço em #1A1A1A. Os dois usos
-   são em fundo escuro, então o filtro a deixa branca (foreground/inverse).
-   Altura pelo token size/logo/height (40, 32 e 24px). O Footer tem tamanho
-   próprio no Figma, mais abaixo.
-   -------------------------------------------------------------------------- */
 .logo {
   display: block;
-  /* se a imagem não carregar, o alt aparece na cor do texto e sem sublinhado */
   color: inherit;
   text-decoration: none;
 }
@@ -176,7 +132,6 @@ main:focus {
   filter: brightness(0) invert(1);
 }
 
-/* Alvo de toque de 44px sem aumentar a navbar: a área extra é um pseudo-elemento */
 a.logo {
   position: relative;
 }
@@ -188,20 +143,6 @@ a.logo::after {
   inset-inline: 0;
 }
 
-/* --------------------------------------------------------------------------
-   Player de áudio (Hero e Artist): um componente só
-   Replica o player nativo de áudio do Chrome (valores --player-* em
-   tokens.css, medidos no Chrome, não vêm do Figma nem dos tokens do site).
-   O js/main.js monta o player a partir de <div class="audio-player"> + <audio>.
-   Sem JS, aparece o <audio controls> nativo.
-
-   .audio-player          container (largura e container query)
-   .player                pílula
-   .player__btn           botão redondo de 32px com área de toque de 44px
-   .player__seek          <input type="range"> do progresso
-   .player__volume        grupo: slider (só com hover) + botão de mudo
-   .player__speed         botão de velocidade + menu
-   -------------------------------------------------------------------------- */
 .audio-player {
   container: player / inline-size;
   width: 100%;
@@ -227,7 +168,7 @@ html.js .audio-player audio {
   color: var(--player-fg);
   font-family: var(--player-font-family);
   font-size: var(--player-font-size);
-  line-height: normal; /* como o Chrome (16px de altura com a fonte de fallback) */
+  line-height: normal;
 }
 
 .player :focus-visible {
@@ -235,7 +176,6 @@ html.js .audio-player audio {
   outline-offset: 2px;
 }
 
-/* Botões redondos: 32px visíveis, 44px de área de toque (::after) */
 .player__btn {
   position: relative;
   flex: none;
@@ -266,12 +206,10 @@ html.js .audio-player audio {
   fill: currentColor;
 }
 
-/* Tempo */
 .player__time {
   display: flex;
   flex: none;
   margin-inline-start: var(--player-time-gap);
-  /* Sobe 1px para alinhar a linha de base ao player nativo do Chrome */
   margin-block-end: 0.125rem;
   white-space: nowrap;
 }
@@ -280,8 +218,6 @@ html.js .audio-player audio {
   margin-inline-start: var(--player-time-gap-duration);
 }
 
-/* Barra de progresso e slider de volume: <input type="range"> sem aparência
-   nativa. --played e --buffered (porcentagens) vêm do JS. */
 .player__seek,
 .player__volume-range {
   --played: 0%;
@@ -350,7 +286,6 @@ html.js .audio-player audio {
   opacity: 0;
 }
 
-/* O marcador aparece com mouse, foco e arraste (como no Chrome) */
 .player__seek:hover::-webkit-slider-thumb,
 .player__seek:focus-visible::-webkit-slider-thumb,
 .player__seek:active::-webkit-slider-thumb,
@@ -372,12 +307,9 @@ html.js .audio-player audio {
 .player .player__seek:focus-visible,
 .player .player__volume-range:focus-visible {
   outline-offset: -2px;
-  border-radius: 0.5rem; /* sem token: só do anel de foco */
+  border-radius: 0.5rem;
 }
 
-/* Volume: só o botão de mudo. Com hover (mouse), o slider aparece à
-   esquerda do ícone, dentro de uma pílula cinza um pouco mais escura, e a
-   barra de progresso encolhe. Em touch o slider não existe. */
 .player__volume {
   position: relative;
   flex: none;
@@ -397,12 +329,11 @@ html.js .audio-player audio {
     align-items: center;
     width: 0;
     overflow: hidden;
-    transition: width 0.15s ease-out; /* sem token: some com prefers-reduced-motion */
+    transition: width 0.15s ease-out;
   }
 
   .player__volume:hover .player__volume-slider,
   .player__volume:focus-within .player__volume-slider {
-    /* 16px + slider de 52px + 6px que separam o slider da área de toque do mudo */
     width: calc(var(--player-volume-slider-offset) + var(--player-volume-slider-width) + (var(--player-target-size) - var(--player-button-size)) / 2);
   }
 
@@ -422,12 +353,6 @@ html.js .audio-player audio {
   }
 }
 
-/* Velocidade */
-/* Mudo e velocidade formam um grupo: o espaço entre eles (--player-speed-gap)
-   e o padding do botão de velocidade são pequenos. As duas áreas de toque
-   continuam com 44px e não se sobrepõem: a do mudo cresce para o lado do
-   volume e a da velocidade para o lado da borda do player (dentro do padding
-   de 18px da pílula), em vez de crescer em volta do botão. */
 .player__speed {
   position: relative;
   flex: none;
@@ -447,19 +372,17 @@ html.js .audio-player audio {
 }
 
 .player__mute::after {
-  /* começa (target − botão − gap) antes do botão e termina no gap */
   inset-inline: calc((var(--player-target-size) - var(--player-button-size) - var(--player-speed-gap)) * -1) calc(var(--player-speed-gap) * -1);
 }
 
 .player__speed-btn::after {
-  /* começa na borda do botão e vai até 44px de largura (ou a largura do texto) */
   inset-inline: 0 min(0px, calc(100% - var(--player-target-size)));
 }
 
 .player__menu {
   position: absolute;
   inset-inline-end: 0;
-  inset-block-start: calc(100% + 0.25rem); /* sem token */
+  inset-block-start: calc(100% + 0.25rem);
   z-index: 30;
   width: var(--player-menu-width);
   max-width: calc(100vw - 1rem);
@@ -472,7 +395,6 @@ html.js .audio-player audio {
   font-size: var(--player-menu-font-size);
 }
 
-/* Sem espaço embaixo, o menu abre acima */
 .player__menu.is-above {
   inset-block: auto calc(100% + 0.25rem);
 }
@@ -482,7 +404,7 @@ html.js .audio-player audio {
   display: block;
   width: 100%;
   height: var(--player-menu-item-height);
-  padding: 0 1rem 0 var(--player-menu-item-padding-start); /* sem token: 16px à direita */
+  padding: 0 1rem 0 var(--player-menu-item-padding-start);
   background: var(--player-menu-bg);
   color: inherit;
   font: inherit;
@@ -515,23 +437,16 @@ html.js .audio-player audio {
   visibility: visible;
 }
 
-/* Player estreito (menos de 20rem = --player-compact-width): só o tempo
-   atual, sem a duração. O @container não aceita var(). */
 @container player (width < 20rem) {
   .player__duration {
     display: none;
   }
 
-  /* Sem espaço para o slider de volume: fica só o botão de mudo, como no
-     player nativo do Chrome em larguras muito pequenas */
   .player__volume-slider {
     display: none;
   }
 }
 
-/* Player de até 22rem (Mobile 320px e Tablet 344px): com o slider de volume
-   aberto, a barra de progresso ficaria sem espaço. Enquanto o volume está
-   aberto (hover ou foco), a duração some, como no player nativo do Chrome. */
 @media (hover: hover) {
   @container player (width < 22rem) {
     .player:has(.player__volume:hover, .player__volume:focus-within) .player__duration {
@@ -540,18 +455,14 @@ html.js .audio-player audio {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Navbar
-   Mobile: só o logo, centralizado (o Figma não tem menu no Mobile).
-   -------------------------------------------------------------------------- */
 .navbar {
   --focus-ring: var(--color-foreground-inverse);
 
   display: flex;
   align-items: center;
-  min-height: var(--size-nav-height); /* mínimo: cresce se o texto for ampliado */
+  min-height: var(--size-nav-height);
   padding: var(--spacing-2) 0 var(--spacing-2_5);
-  border-bottom: 1px solid var(--color-border-strong); /* sem token: 1px */
+  border-bottom: 1px solid var(--color-border-strong);
   background: var(--color-background-inverse);
   color: var(--color-foreground-inverse);
 }
@@ -570,7 +481,7 @@ html.js .audio-player audio {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0 var(--spacing-4); /* Figma: 32 (não vinculado) */
+  gap: 0 var(--spacing-4);
 }
 
 .navbar__list a {
@@ -581,14 +492,13 @@ html.js .audio-player audio {
   min-height: var(--target-min);
   color: inherit;
   font-size: var(--typography-sm);
-  font-weight: 400; /* sem token: Styles/body/sm/regular */
-  line-height: 1.4; /* sem token */
+  font-weight: 400;
+  line-height: 1.4;
   text-decoration: none;
 }
 
 @media (min-width: 48rem) {
   .navbar {
-    /* 8 em cima e 8 + 2 embaixo mantêm o centro do desenho (0 e 2) */
     padding: var(--spacing-1) 0 calc(var(--spacing-1) + var(--spacing-4xs));
   }
 
@@ -605,32 +515,23 @@ html.js .audio-player audio {
 
 @media (min-width: 64rem) {
   .navbar__list a {
-    font-weight: 500; /* sem token: Styles/body/sm/medium */
+    font-weight: 500;
   }
 }
 
-/* --------------------------------------------------------------------------
-   Hero (+ Obra)
-   -------------------------------------------------------------------------- */
 .hero {
   background: var(--color-background-default);
   color: var(--color-foreground-default);
 }
 
-/* Imagem dentro do container (margens laterais do Figma), com o respiro de
-   cima do Figma (40, 32, 24 = spacing/lg em cada breakpoint) */
 .hero__image {
   padding-block-start: var(--spacing-lg);
 }
 
-/* Quadro da obra. A proporção é a da imagem com moldura (1600 × 871, a mesma
-   do quadro do Figma) e a altura nunca passa de 80% da janela. Se passar, a
-   proporção reduz a largura também e o quadro fica centralizado. A imagem
-   ocupa o quadro com object-fit: contain, então nunca é cortada. */
 .obra {
   position: relative;
-  aspect-ratio: 1600 / 871; /* sem token: proporção da imagem com moldura */
-  max-height: 80vh; /* sem token */
+  aspect-ratio: 1600 / 871;
+  max-height: 80vh;
   margin-inline: auto;
 }
 
@@ -640,8 +541,6 @@ html.js .audio-player audio {
   object-fit: contain;
 }
 
-/* Botões redondos escuros sobre a imagem: "Ampliar imagem" no Hero e os
-   controles do modal. O anel de foco é branco, com um halo escuro. */
 .obra__expand {
   --focus-ring: var(--color-foreground-inverse);
 
@@ -650,8 +549,8 @@ html.js .audio-player audio {
   width: var(--target-min);
   height: var(--target-min);
   padding: 0;
-  border: 1px solid var(--color-border-inverse); /* sem token: 1px */
-  border-radius: 99px; /* sem token: pill */
+  border: 1px solid var(--color-border-inverse);
+  border-radius: 99px;
   background: var(--color-background-inverse);
   cursor: pointer;
 }
@@ -659,7 +558,7 @@ html.js .audio-player audio {
 .obra__expand img {
   width: var(--spacing-3);
   height: var(--spacing-3);
-  filter: brightness(0) invert(1); /* SVG vem em gray/800; aqui é branco (foreground/inverse) */
+  filter: brightness(0) invert(1);
 }
 
 .obra__expand:focus-visible {
@@ -673,26 +572,18 @@ html.js .audio-player audio {
   inset-inline-end: var(--spacing-2);
 }
 
-/* --------------------------------------------------------------------------
-   Modal da obra (<dialog>, montado por js/main.js ao abrir pela primeira vez)
-   Tela cheia em todos os tamanhos, aberto com showModal() (top layer: nada da
-   página, nem a navbar, fica por cima). Fundo --overlay-bg (preto do projeto
-   a 90%). A imagem fica centralizada com object-fit: contain e respiro em
-   volta (16, 32 e 48px). Com zoom, o stage rola (mouse: arrastar; teclado:
-   setas; toque: rolagem e pinça nativas).
-   -------------------------------------------------------------------------- */
 .obra-modal {
   --obra-zoom: 1;
-  --obra-modal-gap: var(--spacing-2); /* 16px; 32px no Tablet e 48px no Desktop */
-  --obra-modal-inset: var(--spacing-2); /* distância dos botões às bordas */
+  --obra-modal-gap: var(--spacing-2);
+  --obra-modal-inset: var(--spacing-2);
 
   position: fixed;
   inset: 0;
   box-sizing: border-box;
-  width: 100vw; /* sem token */
+  width: 100vw;
   width: 100dvw;
   max-width: none;
-  height: 100vh; /* sem token */
+  height: 100vh;
   height: 100dvh;
   max-height: none;
   margin: 0;
@@ -705,15 +596,13 @@ html.js .audio-player audio {
 }
 
 .obra-modal::backdrop {
-  background: none; /* o fundo é do próprio dialog */
+  background: none;
 }
 
 .obra-modal:not([open]) {
   display: none;
 }
 
-/* Sem zoom, a obra fica fora das faixas dos botões: em cima e embaixo o
-   respiro é no mínimo botão + margem + respiro do botão à imagem */
 .obra-modal__stage {
   position: absolute;
   inset: 0;
@@ -723,7 +612,7 @@ html.js .audio-player audio {
   overflow: hidden;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  touch-action: pan-x pan-y pinch-zoom; /* a pinça é do navegador */
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .obra-modal__stage[data-zoomed] {
@@ -746,8 +635,6 @@ html.js .audio-player audio {
   user-select: none;
 }
 
-/* Botões claros sobre o fundo escuro: círculo branco com o ícone gray/800.
-   Borda do botão contra o fundo ≥ 3:1 (1.4.11), também desabilitado */
 .obra-modal__btn {
   --focus-ring: var(--color-foreground-inverse);
 
@@ -757,7 +644,7 @@ html.js .audio-player audio {
   height: var(--target-min);
   padding: 0;
   border: 0;
-  border-radius: 99px; /* sem token: pill */
+  border-radius: 99px;
   background: var(--color-foreground-inverse);
   cursor: pointer;
 }
@@ -767,13 +654,12 @@ html.js .audio-player audio {
   height: var(--spacing-3);
 }
 
-/* O anel branco fica separado do botão (branco) por um halo escuro */
 .obra-modal__btn:focus-visible {
   box-shadow: 0 0 0 var(--spacing-4xs) var(--color-background-inverse);
 }
 
 .obra-modal__btn:disabled {
-  opacity: 0.4; /* sem token: estado desabilitado */
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -791,21 +677,19 @@ html.js .audio-player audio {
   gap: var(--spacing-1);
 }
 
-/* Rolagem da página travada enquanto o modal está aberto (o js/main.js
-   compensa a largura da barra de rolagem com padding no <html>) */
 html.is-modal-open {
   overflow: hidden;
 }
 
 @media (min-width: 48rem) {
   .obra-modal {
-    --obra-modal-gap: var(--spacing-4); /* 32px */
+    --obra-modal-gap: var(--spacing-4);
   }
 }
 
 @media (min-width: 64rem) {
   .obra-modal {
-    --obra-modal-gap: var(--spacing-6); /* 48px */
+    --obra-modal-gap: var(--spacing-6);
   }
 }
 
@@ -832,28 +716,25 @@ html.is-modal-open {
   container-type: inline-size;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2); /* Figma: 16 (não vinculado) */
+  gap: var(--spacing-2);
 }
 
 .hero__title h1 {
   font-family: var(--typography-font-family-title), sans-serif;
-  font-size: var(--typography-h1); /* com redução em cqi em @supports, no fim do arquivo */
-  font-weight: 800; /* sem token: ExtraBold */
-  line-height: 1.2; /* sem token */
-  letter-spacing: -0.01em; /* sem token: -1% */
+  font-size: var(--typography-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
 }
 
 .hero__subtitle {
   font-family: var(--typography-font-family-title), sans-serif;
   font-size: var(--typography-subtitle);
-  font-weight: 400; /* sem token: Regular */
-  line-height: 1.2; /* sem token */
+  font-weight: 400;
+  line-height: 1.2;
 }
 
-/* --------------------------------------------------------------------------
-   A11y + AccordionList + AccordionItem
-   -------------------------------------------------------------------------- */
 .a11y {
   padding-block: var(--margin-top) var(--margin-bottom);
 }
@@ -861,7 +742,7 @@ html.is-modal-open {
 .a11y__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  row-gap: var(--spacing-5); /* Figma: 40 (não vinculado) */
+  row-gap: var(--spacing-5);
 }
 
 .a11y__title {
@@ -870,10 +751,6 @@ html.is-modal-open {
   gap: var(--spacing-1);
 }
 
-/* Títulos de seção: tamanho do token de cada breakpoint. Os containers
-   (container-type) são a coluna de cada título: .a11y__title, .ficha__title,
-   .artist__content (Tablet e Desktop) e .artist__inner (Mobile, quando
-   .artist__content é display: contents e não gera caixa). */
 .a11y__title,
 .ficha__title,
 .artist__inner {
@@ -884,17 +761,16 @@ html.is-modal-open {
 .ficha h2,
 .artist h2 {
   font-family: var(--typography-font-family-title), sans-serif;
-  font-size: var(--typography-h2); /* com redução em cqi em @supports, no fim do arquivo */
-  font-weight: 800; /* sem token: ExtraBold */
-  line-height: 1.2; /* sem token */
+  font-size: var(--typography-h2);
+  font-weight: 800;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
 .a11y__title p {
   font-size: var(--typography-md);
-  font-weight: 400; /* sem token: Styles/body/md/regular */
-  line-height: 1.4; /* sem token */
-  /* Figma Mobile: foreground/default. Tablet e Desktop: foreground/secondary */
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .accordion-list {
@@ -902,32 +778,25 @@ html.is-modal-open {
   flex-direction: column;
 }
 
-/* Container do título (ver "Títulos: redução só quando necessário", no fim do arquivo) */
 .accordion-item {
   container-type: inline-size;
-  --accordion-pad: var(--spacing-3); /* Mobile: 24 */
-  /* Espaço reservado à direita do painel: largura do ícone (1em, com
-     font-size = --typography-xl) + gap entre título e ícone (column-gap
-     do button, --spacing-2). Mantém o painel alinhado à borda esquerda
-     do ícone, com o mesmo respiro do título. */
+  --accordion-pad: var(--spacing-3);
   --accordion-icon-space: calc(var(--typography-xl) + var(--spacing-2));
 
-  border-bottom: 1px solid var(--color-border-default); /* sem token: 1px */
+  border-bottom: 1px solid var(--color-border-default);
 }
 
-/* Sem JS o título é só o heading, com o mesmo espaçamento e tipografia */
 .accordion-item__title {
-  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
-  font-size: var(--typography-xl); /* com redução em cqi em @supports, no fim do arquivo */
-  font-weight: 600; /* sem token: Styles/body/xl/semi (SemiBold), igual aberto e fechado */
-  line-height: 1.3; /* sem token */
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px);
+  font-size: var(--typography-xl);
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .accordion-item:first-child .accordion-item__title {
   padding-block-start: 0;
 }
 
-/* Com JS o padding passa para o botão (área de toque inteira) */
 .js .accordion-item__title {
   padding-block: 0;
 }
@@ -936,34 +805,17 @@ html.is-modal-open {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Figma: 32. Com 16, e com quebra de linha do ícone, o texto e o ícone não
-     estouram a coluna quando o texto é ampliado (as palavras dos títulos não
-     quebram). Com o texto curto não muda nada: o ícone fica na ponta direita. */
   flex-wrap: wrap;
   gap: var(--spacing-1) var(--spacing-2);
   width: 100%;
-  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px); /* o traço de 1px do Figma é interno */
-  font-size: var(--typography-xl); /* com redução em cqi em @supports, no fim do arquivo */
-  font-weight: 600; /* sem token: Styles/body/xl/semi (SemiBold), igual aberto e fechado */
-  line-height: 1.3; /* sem token */
+  padding-block: var(--accordion-pad) calc(var(--accordion-pad) - 1px);
+  font-size: var(--typography-xl);
+  font-weight: 600;
+  line-height: 1.3;
   text-align: start;
   border-radius: var(--spacing-1);
 }
 
-/* Hover sutil (só com mouse): fundo --color-border-subtle no botão inteiro,
-   estendido 8px para os lados com box-shadow (o texto não muda de lugar) e
-   sem mudar o peso da fonte */
-/* @media (hover: hover) {
-  .accordion-item__title button:hover {
-    background: var(--color-border-subtle);
-    box-shadow:
-      calc(var(--spacing-1) * -1) 0 0 var(--color-border-subtle),
-      var(--spacing-1) 0 0 var(--color-border-subtle);
-  }
-} */
-
-/* Foco visível no botão inteiro: contorno de 2px (--spacing-4xs) em
-   foreground/default, 17,4:1 sobre o branco */
 .accordion-item__title button:focus-visible {
   outline: var(--spacing-4xs) solid var(--color-foreground-default);
   outline-offset: var(--spacing-4xs);
@@ -973,20 +825,16 @@ html.is-modal-open {
   padding-top: 0;
 }
 
-/* Mobile: com o painel aberto o título perde padding embaixo (Figma: 16) */
 .accordion-item__title button[aria-expanded="true"] {
   padding-block-end: var(--spacing-2);
 }
 
-/* Painel: grid de 1 linha que anima de 0fr a 1fr. O conteúdo fechado fica
-   com visibility:hidden (some da árvore de acessibilidade e do Tab) e o JS
-   também põe inert. Sem JS a classe .js não existe e tudo fica aberto. */
 .accordion-item__answer {
   display: grid;
   grid-template-rows: 1fr;
-  font-size: max(var(--typography-md), 1rem); /* sem token: mínimo de 16px (o token vale 14px no Mobile) */
-  font-weight: 400; /* sem token: Styles/body/md/regular */
-  line-height: 1.4; /* sem token */
+  font-size: max(var(--typography-md), 1rem);
+  font-weight: 400;
+  line-height: 1.4;
 }
 
 .accordion-item__content {
@@ -1000,8 +848,6 @@ html.is-modal-open {
   text-wrap: pretty;
 }
 
-/* Telas muito estreitas: sem espaço para recolher a coluna, o painel usa a
-   largura total (até a linha divisória) em vez do recuo alinhado ao ícone */
 @media (max-width: 480px) {
   .accordion-item__content p {
     padding-right: 0;
@@ -1024,11 +870,6 @@ html.is-modal-open {
     visibility 0s;
 }
 
-/* Ícone mais/menos: SVG inline (criado pelo js/main.js) de 1em × 1em, então
-   escala com o tamanho da fonte do título (16, 20 e 24px). Cor do texto
-   (currentColor). Traço proporcional: 2/24 em (2px aos 24px do Desktop), com
-   piso de 1,5px renderizado. As linhas usam unidades em em, sem viewBox, então
-   o stroke-width em CSS é em pixels reais (sem vector-effect). */
 .accordion-item__icon {
   flex: none;
   margin-inline-start: auto;
@@ -1036,7 +877,7 @@ html.is-modal-open {
   height: 1em;
   fill: none;
   stroke: currentColor;
-  stroke-width: max(1.5px, calc(2em / 24)); /* sem token: 2px no Desktop, piso de 1,5px */
+  stroke-width: max(1.5px, calc(2em / 24));
   overflow: visible;
 }
 
@@ -1045,7 +886,6 @@ html.is-modal-open {
   transform-origin: center;
 }
 
-/* Fechado: a segunda linha vira a vertical do "+". Aberto: fica deitada e o "−" sobra */
 .accordion-item__icon .accordion-item__icon-v {
   transform: rotate(90deg);
   transition: transform var(--motion-duration) var(--motion-ease);
@@ -1063,7 +903,7 @@ html.is-modal-open {
   .a11y__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     align-items: start;
-    column-gap: var(--spacing-5); /* Figma: 40 */
+    column-gap: var(--spacing-5);
   }
 
   .a11y__title {
@@ -1080,7 +920,7 @@ html.is-modal-open {
   }
 
   .accordion-item {
-    --accordion-pad: 1.75rem; /* sem token: 28, decisão de design (Tablet) */
+    --accordion-pad: 1.75rem;
   }
 
   .accordion-item__title button[aria-expanded="true"] {
@@ -1092,7 +932,7 @@ html.is-modal-open {
 @media (min-width: 64rem) {
   .a11y__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--spacing-2_5); /* Figma: 20 */
+    column-gap: var(--spacing-2_5);
   }
 
   .a11y__title {
@@ -1104,26 +944,22 @@ html.is-modal-open {
   }
 
   .accordion-item {
-    --accordion-pad: var(--spacing-4); /* Desktop: 32 */
+    --accordion-pad: var(--spacing-4);
   }
 }
 
-/* --------------------------------------------------------------------------
-   Ficha + ListFicha + ListItem
-   -------------------------------------------------------------------------- */
 .ficha {
-  /* Mobile: o padding de baixo usa margin/top (decisão de design) */
   padding-block: var(--margin-top);
 }
 
 .ficha__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  row-gap: var(--spacing-3); /* Figma: 24 (não vinculado) */
+  row-gap: var(--spacing-3);
 }
 
 .ficha__content {
-  display: contents; /* Mobile: lista e player empilham na única coluna, na ordem do DOM */
+  display: contents;
 }
 
 .list-ficha {
@@ -1133,32 +969,29 @@ html.is-modal-open {
 
 .list-item {
   display: grid;
-  row-gap: var(--spacing-0_25); /* Figma: 2 no Mobile (frame "Text") */
+  row-gap: var(--spacing-0_25);
   padding: var(--spacing-1) 0;
 }
 
-/* Divisor desenhado à mão no Figma (frame de 1px). O espaço até ele é o
-   itemSpacing do ListItem: 16 no Mobile (decisão de design, sem vínculo),
-   spacing/sm nos outros breakpoints. */
 .list-item:not(:last-child)::after {
   content: "";
-  height: 1px; /* sem token: Stroke/Divider Width */
+  height: 1px;
   margin-block-start: calc(var(--spacing-2) - var(--spacing-0_25));
-  border-radius: 99px; /* sem token: pill */
+  border-radius: 99px;
   background: var(--color-border-default);
 }
 
 .list-item dt {
   color: var(--color-foreground-secondary);
   font-size: var(--typography-xs);
-  font-weight: 300; /* sem token: Light */
-  line-height: 1.2; /* sem token */
+  font-weight: 300;
+  line-height: 1.2;
 }
 
 .list-item dd {
   font-size: var(--typography-xl);
-  font-weight: 300; /* sem token: Light */
-  line-height: 1.3; /* sem token */
+  font-weight: 300;
+  line-height: 1.3;
 }
 
 @media (min-width: 48rem) {
@@ -1169,7 +1002,7 @@ html.is-modal-open {
   .ficha__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
     align-items: start;
-    column-gap: var(--spacing-5); /* Figma: 40 */
+    column-gap: var(--spacing-5);
   }
 
   .ficha__title {
@@ -1179,12 +1012,12 @@ html.is-modal-open {
   .ficha__content {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3); /* mesmo respiro do row-gap do .ficha__inner no Mobile */
+    gap: var(--spacing-3);
     grid-column: 5 / span 4;
   }
 
   .list-item {
-    row-gap: var(--spacing-0_5); /* Figma: 4 */
+    row-gap: var(--spacing-0_5);
     padding: var(--spacing-1) var(--spacing-sm) var(--spacing-2);
   }
 
@@ -1196,7 +1029,7 @@ html.is-modal-open {
 @media (min-width: 64rem) {
   .ficha__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--spacing-2_5); /* Figma: 20 */
+    column-gap: var(--spacing-2_5);
   }
 
   .ficha__title {
@@ -1208,11 +1041,8 @@ html.is-modal-open {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Divider
-   -------------------------------------------------------------------------- */
 .divider {
-  height: calc(var(--spacing-2) * 2 + 1px); /* Figma: 33 = 16 + 1 + 16 */
+  height: calc(var(--spacing-2) * 2 + 1px);
   padding-inline: var(--margin-left);
   background: var(--color-background-default);
 }
@@ -1220,19 +1050,13 @@ html.is-modal-open {
 .divider::before {
   content: "";
   display: block;
-  /* Acima de 1440px a linha para na largura do container (mesmas margens) */
   max-width: calc(var(--layout-max-width) - var(--margin-left) - var(--margin-right));
-  height: 1px; /* sem token */
+  height: 1px;
   margin: var(--spacing-2) auto 0;
-  border-radius: 99px; /* sem token: pill */
+  border-radius: 99px;
   background: var(--color-border-subtle);
 }
 
-/* --------------------------------------------------------------------------
-   Artist + Audiodescription
-   Mobile: título, foto, texto, player (ordem do Figma). O DOM tem foto antes
-   do título; grid-row reordena só no visual.
-   -------------------------------------------------------------------------- */
 .artist {
   padding-block: var(--margin-top);
 }
@@ -1240,7 +1064,7 @@ html.is-modal-open {
 .artist__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  row-gap: var(--spacing-3); /* Figma: 24 */
+  row-gap: var(--spacing-3);
 }
 
 .artist__content {
@@ -1254,7 +1078,7 @@ html.is-modal-open {
 .artist__image {
   position: relative;
   grid-row: 2;
-  aspect-ratio: 327 / 300; /* sem token: 327 × 300 do Figma */
+  aspect-ratio: 327 / 300;
 }
 
 .artist__image img {
@@ -1262,9 +1086,9 @@ html.is-modal-open {
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 2px; /* sem token: Mobile */
+  border-radius: 2px;
   object-fit: cover;
-  object-position: center top; /* não corta a cabeça ao redimensionar */
+  object-position: center top;
 }
 
 .artist__description {
@@ -1273,11 +1097,10 @@ html.is-modal-open {
   gap: var(--spacing-2);
   grid-row: 3;
   font-size: var(--typography-sm);
-  font-weight: 400; /* sem token: Styles/body/sm/regular */
-  line-height: 1.4; /* sem token */
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-/* Texto corrido: no máximo 65 caracteres por linha */
 .artist__description p {
   max-width: 65ch;
 }
@@ -1292,7 +1115,7 @@ html.is-modal-open {
 @media (min-width: 48rem) {
   .artist__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    column-gap: var(--spacing-5); /* Figma: 40 */
+    column-gap: var(--spacing-5);
   }
 
   .artist__image {
@@ -1302,7 +1125,7 @@ html.is-modal-open {
   }
 
   .artist__image img {
-    border-radius: 4px; /* sem token */
+    border-radius: 4px;
   }
 
   .artist__content {
@@ -1318,7 +1141,7 @@ html.is-modal-open {
 @media (min-width: 64rem) {
   .artist__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: var(--spacing-2_5); /* Figma: 20 */
+    column-gap: var(--spacing-2_5);
   }
 
   .artist__image {
@@ -1330,14 +1153,11 @@ html.is-modal-open {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Footer
-   -------------------------------------------------------------------------- */
 .footer {
   --focus-ring: var(--color-foreground-inverse);
 
   padding-block: var(--spacing-5) var(--spacing-7);
-  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  border-top: 1px solid var(--color-border-inverse);
   background: var(--color-background-inverse);
   color: var(--color-foreground-inverse);
 }
@@ -1345,31 +1165,29 @@ html.is-modal-open {
 .footer__inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  row-gap: var(--spacing-3); /* Figma: 24 */
+  row-gap: var(--spacing-3);
 }
 
 .footer__top {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-8); /* Figma: 64 */
+  gap: var(--spacing-8);
 }
 
-/* Logo do Footer: altura própria do Figma, sem token (55,53px no Mobile e no
-   Tablet, 96,04px no Desktop). */
 .footer .logo img {
-  height: 3.47rem; /* sem token: 55,53px */
+  height: 3.47rem;
 }
 
 .footer__nav {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-1_5); /* Figma: 12 */
+  gap: var(--spacing-1_5);
 }
 
 .footer__nav h2 {
   font-size: var(--typography-sm);
-  font-weight: 600; /* sem token: Styles/body/sm/semibold */
-  line-height: 1.4; /* sem token */
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .footer__nav ul {
@@ -1378,38 +1196,33 @@ html.is-modal-open {
   gap: 0;
 }
 
-/* Figma: espaço entre itens 0 (Mobile), 16 (Tablet), 12 (Desktop). Aqui os
-   itens ficam colados (sem gap) e cada link tem 44px de altura mínima, feita
-   com padding vertical em volta da linha de texto (corpo do Figma: body/sm,
-   14px no Mobile e no Tablet e 16px no Desktop). O passo entre links é 44px:
-   é o menor possível com alvos de 44px que não se sobrepõem. */
 .footer__nav a {
   display: flex;
   align-items: center;
   min-height: var(--target-min);
-  padding-block: 0.75rem; /* sem token: ~(44px − linha) / 2, para navegadores sem a unidade lh */
+  padding-block: 0.75rem;
   padding-block: calc((var(--target-min) - 1lh) / 2);
   color: inherit;
   font-size: var(--typography-sm);
-  font-weight: 300; /* sem token: Light */
-  line-height: 1.4; /* sem token: Styles/body/sm */
+  font-weight: 300;
+  line-height: 1.4;
   text-decoration: none;
 }
 
 .footer__divider {
-  border-top: 1px solid var(--color-border-inverse); /* sem token: 1px */
+  border-top: 1px solid var(--color-border-inverse);
 }
 
 .footer__copyright {
   font-size: var(--typography-xs);
-  font-weight: 500; /* sem token: Styles/body/2xs/medium */
-  line-height: 1.2; /* sem token */
+  font-weight: 500;
+  line-height: 1.2;
 }
 
 @media (min-width: 48rem) {
   .footer__inner {
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    column-gap: var(--spacing-5); /* Figma: 40 */
+    column-gap: var(--spacing-5);
   }
 
   .footer__top {
@@ -1422,8 +1235,6 @@ html.is-modal-open {
     align-self: start;
   }
 
-  /* Figma: colunas 6 a 8. Com o texto no tamanho do corpo (14px), o segundo
-     link quebraria em duas linhas; a coluna começa uma antes (5 a 8) */
   .footer__nav {
     grid-column: 5 / span 4;
     grid-row: 1;
@@ -1443,18 +1254,18 @@ html.is-modal-open {
 
 @media (min-width: 64rem) {
   .footer {
-    padding-block: 7rem; /* sem token: 112 (decisão de design em aberto) */
+    padding-block: 7rem;
   }
 
   .footer__inner {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: auto var(--spacing-0_5) auto; /* Figma: linha do divisor com 4 */
-    column-gap: var(--spacing-2_5); /* Figma: 20 */
-    row-gap: var(--spacing-6); /* Figma: 48 */
+    grid-template-rows: auto var(--spacing-0_5) auto;
+    column-gap: var(--spacing-2_5);
+    row-gap: var(--spacing-6);
   }
 
   .footer .logo img {
-    height: 6rem; /* sem token: 96,04px */
+    height: 6rem;
   }
 
   .footer__nav {
@@ -1467,31 +1278,11 @@ html.is-modal-open {
 
   .footer__copyright {
     font-size: var(--typography-sm);
-    font-weight: 600; /* sem token: Styles/body/sm/semibold */
-    line-height: 1.4; /* sem token */
+    font-weight: 600;
+    line-height: 1.4;
   }
 }
 
-/* --------------------------------------------------------------------------
-   Títulos: redução só quando necessário
-   Os headings usam exatamente o token de tamanho do breakpoint (sem
-   interpolação) e nunca quebram palavras. Se a coluna do título for estreita
-   demais para a palavra mais longa, o tamanho encolhe:
-     font-size: min(var(--token-do-breakpoint), Ncqi)
-   cqi = 1% da largura da coluna do título (container-type: inline-size).
-   N = ⌊100 / largura da palavra em em⌋, na fonte, no peso e no tracking do
-   título (Plus Jakarta Sans, medido no Chrome). Com N, a palavra ocupa 98% da
-   coluna ou menos. O resultado nunca passa do token.
-     - h2 de seção  ExtraBold 800, caixa alta   ACESSIBILIDADE 8,224em → N = 12
-     - h1 do Hero   ExtraBold 800, caixa alta,
-                    tracking -1%                ESQUISITA      5,203em → N = 19
-     - h3 acordeão  Light 300                   Audiodescrição 7,569em → N = 13
-   Hierarquia: em cada largura, h1 e h2 usam o mesmo breakpoint e o token do h1
-   é maior que o do h2 (32 > 28, 48 > 32, 64 > 48). O teto do h1 (19cqi de uma
-   coluna que é a largura toda) também é maior que o do h2 (12cqi de uma coluna
-   igual ou menor). Logo o h2 nunca passa do h1.
-   Só vale em navegadores com cqi; nos outros ficam os tokens.
-   -------------------------------------------------------------------------- */
 @supports (width: 1cqi) {
   .a11y__title h2,
   .ficha h2,
@@ -1509,11 +1300,6 @@ html.is-modal-open {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Movimento
-   Sem preferência: rolagem suave e transições. Com reduce: nenhuma animação
-   nem transição, e a mudança de estado é imediata.
-   -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
@@ -1538,20 +1324,12 @@ html.is-modal-open {
   }
 }
 
-/* --------------------------------------------------------------------------
-   Cores forçadas (Alto Contraste do Windows)
-   O navegador troca as cores por cores do sistema. Os ícones são <img> com
-   cor fixa, e o mais/menos do acordeão e a barra de progresso são fundos, que
-   sumiriam. prefers-color-scheme acompanha o fundo do tema de alto contraste.
-   -------------------------------------------------------------------------- */
 @media (forced-colors: active) {
   .obra__expand img,
   .logo img {
     filter: brightness(0);
   }
 
-  /* Player: cores do sistema; os ícones (SVG com currentColor) e o texto
-     seguem sozinhos */
   .player {
     --player-bg: Canvas;
     --player-fg: CanvasText;

@@ -1,15 +1,3 @@
-/* ==========================================================================
-   Esquisita como eu — interações (etapa 4)
-
-   JS puro, sem dependências. A página funciona sem este arquivo: o conteúdo
-   está todo no HTML, os itens de acessibilidade ficam abertos e cada áudio
-   tem o player nativo. Ao carregar, este script marca <html class="js"> e o
-   CSS troca esses fallbacks pelos controles do desenho.
-
-   1. Navegação por âncoras   2. Player de áudio   3. Acordeão   4. Modal da obra
-   A rolagem suave e as transições ficam no CSS, dentro de
-   prefers-reduced-motion. Nada aqui anima.
-   ========================================================================== */
 (function () {
   'use strict';
 
@@ -19,11 +7,6 @@
     Array.prototype.forEach.call(list, fn);
   }
 
-  /* ------------------------------------------------------------------------
-     1. Navegação por âncoras
-     - Ao ir para uma dobra, o foco vai para o heading dela (tabindex="-1").
-     - O item da navbar da dobra visível recebe aria-current="location".
-     ---------------------------------------------------------------------- */
   function initNav() {
     var items = [];
 
@@ -46,12 +29,10 @@
       });
     }
 
-    // preventScroll: a rolagem (suave ou não) é do navegador
     function focusHeading(item) {
       if (item && item.heading) item.heading.focus({ preventScroll: true });
     }
 
-    // Enquanto a rolagem suave passa por outras dobras, o observador espera
     var locked = false;
     var lockTimer;
     function lock() {
@@ -74,7 +55,6 @@
       });
     });
 
-    // Voltar/avançar e mudança manual do hash
     window.addEventListener('hashchange', function () {
       var item = byHash();
       if (!item) return;
@@ -82,7 +62,6 @@
       focusHeading(item);
     });
 
-    // Dobra visível: faixa fina no meio da janela
     if ('IntersectionObserver' in window) {
       var observer = new IntersectionObserver(function (entries) {
         if (locked) return;
@@ -96,8 +75,6 @@
       items.forEach(function (i) { observer.observe(i.section); });
     }
 
-    // Página aberta com #hash. Depois do load o navegador ainda tira o foco
-    // ao ir para o fragmento, então o heading é focado de novo nesse momento.
     var initial = byHash();
     if (initial) {
       setCurrent(initial);
@@ -109,13 +86,6 @@
     }
   }
 
-  /* ------------------------------------------------------------------------
-     2. Player de áudio
-     Um componente só: cada <div class="audio-player"> com um <audio> ganha o
-     player montado aqui (o HTML tem só o <audio>, com controls para quando
-     não há JS). O visual replica o player nativo do Chrome (--player-*).
-     Só um áudio toca por vez, e a velocidade vale para todos.
-     ---------------------------------------------------------------------- */
   var PATHS = {
     play: 'M8 5v14l11-7z',
     pause: 'M6 19h4V5H6v14zm8-14v14h4V5h-4z',
@@ -124,7 +94,7 @@
     check: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'
   };
   var RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
-  var SEEK_STEP = 5; // segundos por seta
+  var SEEK_STEP = 5;
   var players = [];
   var currentRate = 1;
   var openMenuOwner = null;
@@ -149,7 +119,6 @@
     return n + ' ' + (n === 1 ? one : many);
   }
 
-  // "1 minuto e 20 segundos", "3 minutos", "20 segundos"
   function spoken(seconds) {
     if (!isFinite(seconds) || seconds < 0) seconds = 0;
     var t = Math.floor(seconds);
@@ -228,7 +197,6 @@
 
     function toggleIcons(button, first) {
       var icons = button.querySelectorAll('svg');
-      // svg não tem a propriedade .hidden: usa o atributo
       icons[0].toggleAttribute('hidden', !first);
       icons[1].toggleAttribute('hidden', first);
     }
@@ -278,7 +246,7 @@
     function setPlaying(playing) {
       playBtn.setAttribute('aria-pressed', String(playing));
       playBtn.setAttribute('aria-label', (playing ? 'Pausar ' : 'Ouvir ') + name);
-      toggleIcons(playBtn, !playing); // play parado, pause tocando
+      toggleIcons(playBtn, !playing);
     }
 
     function syncVolume() {
@@ -286,7 +254,7 @@
       var v = muted ? 0 : audio.volume;
       muteBtn.setAttribute('aria-pressed', String(muted));
       muteBtn.setAttribute('aria-label', muted ? 'Ativar som' : 'Silenciar áudio');
-      toggleIcons(muteBtn, !muted); // volume ligado, volume desligado
+      toggleIcons(muteBtn, !muted);
       volRange.value = v;
       setPercent(volRange, '--played', v, 1);
       volRange.setAttribute('aria-valuetext', Math.round(v * 100) + '%');
@@ -303,7 +271,6 @@
       });
     }
 
-    /* ---- menu de velocidade (padrão menu button) ---- */
     function focusItem(item) {
       menuItems.forEach(function (i) { i.tabIndex = -1; });
       item.tabIndex = 0;
@@ -319,7 +286,6 @@
       menu.hidden = false;
       speedBtn.setAttribute('aria-expanded', 'true');
       openMenuOwner = api;
-      // abre abaixo; se não couber e houver mais espaço em cima, abre acima
       menu.classList.remove('is-above');
       var rect = speedBtn.getBoundingClientRect();
       var need = menu.offsetHeight + 8;
@@ -354,7 +320,7 @@
       else if (e.key === 'Home') { e.preventDefault(); focusItem(menuItems[0]); }
       else if (e.key === 'End') { e.preventDefault(); focusItem(menuItems[menuItems.length - 1]); }
       else if (e.key === 'Escape') { e.preventDefault(); closeMenu(true); }
-      else if (e.key === 'Tab') closeMenu(false); // o foco segue o Tab
+      else if (e.key === 'Tab') closeMenu(false);
     });
 
     menuItems.forEach(function (item) {
@@ -364,7 +330,6 @@
       });
     });
 
-    /* ---- reprodução ---- */
     playBtn.addEventListener('click', function () {
       if (!audio.paused) {
         audio.pause();
@@ -372,11 +337,10 @@
       }
       var started = audio.play();
       if (started && started.catch) {
-        started.catch(function () { setPlaying(false); }); // arquivo ausente ou bloqueado
+        started.catch(function () { setPlaying(false); });
       }
     });
 
-    /* ---- progresso: clique, arraste e setas (5 s por passo) ---- */
     seek.addEventListener('pointerdown', function () { scrubbing = true; });
     window.addEventListener('pointerup', function () { scrubbing = false; });
     window.addEventListener('pointercancel', function () { scrubbing = false; });
@@ -398,7 +362,6 @@
       updateBuffered();
     });
 
-    /* ---- volume ---- */
     muteBtn.addEventListener('click', function () {
       if (audio.muted) {
         audio.muted = false;
@@ -414,11 +377,10 @@
       audio.muted = v === 0;
     });
 
-    /* ---- eventos do <audio> ---- */
     audio.addEventListener('play', function () {
       setPlaying(true);
       players.forEach(function (p) {
-        if (p.audio !== audio && !p.audio.paused) p.audio.pause(); // o ícone dele volta pelo evento pause
+        if (p.audio !== audio && !p.audio.paused) p.audio.pause();
       });
     });
     audio.addEventListener('pause', function () { setPlaying(false); });
@@ -433,7 +395,7 @@
     });
     audio.addEventListener('progress', updateBuffered);
     audio.addEventListener('loadedmetadata', function () {
-      audio.playbackRate = currentRate; // o navegador zera ao carregar
+      audio.playbackRate = currentRate;
       keepPitch(audio);
       updateDuration();
     });
@@ -462,18 +424,11 @@
       if (player) players.push(player);
     });
 
-    // clicar fora fecha o menu de velocidade
     document.addEventListener('pointerdown', function (e) {
       if (openMenuOwner && !openMenuOwner.speedRoot.contains(e.target)) openMenuOwner.closeMenu(false);
     }, true);
   }
 
-  /* ------------------------------------------------------------------------
-     3. Acordeão
-     O HTML tem só o heading e o texto (tudo aberto sem JS). Aqui cada
-     heading ganha um <button aria-expanded aria-controls> e o painel vira
-     uma região. Os itens são independentes.
-     ---------------------------------------------------------------------- */
   function initAccordion() {
     each(document.querySelectorAll('.accordion-item'), function (item) {
       var title = item.querySelector('.accordion-item__title');
@@ -482,7 +437,6 @@
 
       var label = document.createElement('span');
       label.textContent = title.textContent.trim();
-      // Ícone + / −: SVG de 1em, com linhas em em (o CSS define traço e cor)
       var NS = 'http://www.w3.org/2000/svg';
       var icon = document.createElementNS(NS, 'svg');
       icon.setAttribute('class', 'accordion-item__icon');
@@ -510,9 +464,8 @@
 
       panel.setAttribute('role', 'region');
       panel.setAttribute('aria-labelledby', button.id);
-      panel.inert = true; // fechado: fora do Tab e da leitura
+      panel.inert = true;
 
-      // <button> já responde a Enter e Espaço com "click"
       button.addEventListener('click', function () {
         var open = button.getAttribute('aria-expanded') !== 'true';
         button.setAttribute('aria-expanded', String(open));
@@ -522,14 +475,6 @@
     });
   }
 
-  /* ------------------------------------------------------------------------
-     4. Modal da obra
-     No Hero, o link "Ampliar imagem da obra" (que sem JS abre a imagem em
-     nova aba) vira um botão que abre um <dialog> nativo (showModal). O dialog
-     é montado na primeira abertura, então a imagem grande só carrega aí.
-     Zoom de 1x a 4x, de 0,5 em 0,5. Com zoom > 1x o stage rola: mouse
-     arrasta, setas movem, toque usa a rolagem e a pinça nativas.
-     ---------------------------------------------------------------------- */
   function initModal() {
     var link = document.querySelector('.obra__expand');
     var heroImg = document.querySelector('.obra__img');
@@ -538,12 +483,11 @@
     var MIN = 1;
     var MAX = 4;
     var STEP = 0.5;
-    var ARROW_STEP = 48; // px por seta
+    var ARROW_STEP = 48;
     var TITLE = 'Esquisita Como Eu, de Laura Castilhos';
     var zoom = MIN;
     var dialog, stage, zoomIn, zoomOut, status;
 
-    // Sem JS é um link; com JS, um botão
     var opener = document.createElement('button');
     opener.type = 'button';
     opener.className = link.className;
@@ -573,8 +517,8 @@
 
       stage = dialog.querySelector('.obra-modal__stage');
       var img = stage.querySelector('img');
-      img.src = link.getAttribute('href'); // a imagem maior disponível
-      img.alt = heroImg.getAttribute('alt'); // o mesmo alt do Hero
+      img.src = link.getAttribute('href');
+      img.alt = heroImg.getAttribute('alt');
       zoomIn = dialog.querySelector('.obra-modal__zoom-in');
       zoomOut = dialog.querySelector('.obra-modal__zoom-out');
       status = dialog.querySelector('[role="status"]');
@@ -583,9 +527,6 @@
       zoomIn.addEventListener('click', function () { setZoom(Math.min(MAX, zoom + STEP), true); });
       zoomOut.addEventListener('click', function () { setZoom(Math.max(MIN, zoom - STEP), true); });
 
-      // Clique no fundo (a área escura fora da obra): só se o clique começou e
-      // terminou fora da obra, sem arrastar. O stage cobre o dialog inteiro, e a
-      // <img> cobre o stage, então a área da obra é calculada (object-fit: contain).
       function outsideArt(e) {
         var box = img.getBoundingClientRect();
         var scale = img.naturalWidth ? Math.min(box.width / img.naturalWidth, box.height / img.naturalHeight) : 1;
@@ -611,7 +552,6 @@
         if (close) dialog.close();
       });
 
-      // Setas movem a imagem com zoom, onde quer que esteja o foco no modal
       dialog.addEventListener('keydown', function (e) {
         if (zoom <= MIN || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
         var dx = 0;
@@ -625,8 +565,6 @@
         stage.scrollBy(dx, dy);
       });
 
-      // Arrastar com mouse ou caneta. Toque não passa por aqui: rola e faz
-      // pinça pelo navegador.
       var drag = null;
       stage.addEventListener('pointerdown', function (e) {
         if (zoom <= MIN || e.pointerType === 'touch' || e.button !== 0) return;
@@ -652,7 +590,6 @@
     }
 
     function setZoom(next, announce) {
-      // mantém o centro da imagem no centro da janela
       var cx = (stage.scrollLeft + stage.clientWidth / 2) / stage.scrollWidth;
       var cy = (stage.scrollTop + stage.clientHeight / 2) / stage.scrollHeight;
 
@@ -678,7 +615,6 @@
       var focused = document.activeElement;
       zoomOut.disabled = zoom <= MIN;
       zoomIn.disabled = zoom >= MAX;
-      // um botão desabilitado perde o foco: passa para o oposto
       if (focused === zoomIn && zoomIn.disabled) zoomOut.focus();
       if (focused === zoomOut && zoomOut.disabled) zoomIn.focus();
 
@@ -690,7 +626,6 @@
       }
     }
 
-    // Trava a rolagem da página, compensando a barra de rolagem que some
     function lockScroll() {
       var html = document.documentElement;
       var bar = window.innerWidth - html.clientWidth;
@@ -704,7 +639,6 @@
       html.style.removeProperty('padding-inline-end');
     }
 
-    // Fechou (Esc, botão ou fundo): zoom volta a 1x, rolagem volta, foco volta
     function onClose() {
       setZoom(MIN, false);
       status.textContent = '';
